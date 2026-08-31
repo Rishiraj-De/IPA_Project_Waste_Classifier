@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: smart_waste_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DATABASE_URL=sqlite:////app/data/waste_classifier.db
+      - UPLOAD_DIR=/app/uploads
+      - CONFIDENCE_THRESHOLD=0.50
+    volumes:
+      - waste_data:/app/data
+      - waste_uploads:/app/uploads
+      - ./ml/models:/app/ml/models
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: smart_waste_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  waste_data:
+  waste_uploads:

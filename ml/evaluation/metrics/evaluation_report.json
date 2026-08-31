@@ -1,0 +1,79 @@
+{
+  "evaluation_timestamp": "2026-08-29",
+  "model_architecture": "YOLOv8-Waste (Backbone: CSPDarknet53, Neck: PANet)",
+  "num_classes": 9,
+  "classes": [
+    "Plastic",
+    "Paper",
+    "Cardboard",
+    "Glass",
+    "Metal",
+    "Organic",
+    "E-Waste",
+    "Hazardous Waste",
+    "Other/Unknown"
+  ],
+  "overall_metrics": {
+    "mAP50": 0.8707,
+    "mAP50_95": 0.6443,
+    "mean_precision": 0.9096,
+    "mean_recall": 0.9059,
+    "mean_f1": 0.907
+  },
+  "per_class_metrics": [
+    {
+      "category": "Plastic",
+      "precision": 0.9032,
+      "recall": 0.9032,
+      "f1_score": 0.9032
+    },
+    {
+      "category": "Paper",
+      "precision": 0.8889,
+      "recall": 0.8889,
+      "f1_score": 0.8889
+    },
+    {
+      "category": "Cardboard",
+      "precision": 0.9583,
+      "recall": 0.92,
+      "f1_score": 0.9388
+    },
+    {
+      "category": "Glass",
+      "precision": 0.9565,
+      "recall": 0.9167,
+      "f1_score": 0.9362
+    },
+    {
+      "category": "Metal",
+      "precision": 0.931,
+      "recall": 0.9,
+      "f1_score": 0.9153
+    },
+    {
+      "category": "Organic",
+      "precision": 1.0,
+      "recall": 0.9167,
+      "f1_score": 0.9565
+    },
+    {
+      "category": "E-Waste",
+      "precision": 0.8519,
+      "recall": 0.92,
+      "f1_score": 0.8846
+    },
+    {
+      "category": "Hazardous Waste",
+      "precision": 0.9032,
+      "recall": 0.9032,
+      "f1_score": 0.9032
+    },
+    {
+      "category": "Other/Unknown",
+      "precision": 0.7931,
+      "recall": 0.8846,
+      "f1_score": 0.8364
+    }
+  ]
+}
