@@ -29,6 +29,7 @@ export const DetectPage: React.FC = () => {
 
   // Current Prediction Result
   const [prediction, setPrediction] = useState<PredictionResponse | null>(null);
+  const [livePrediction, setLivePrediction] = useState<PredictionResponse | null>(null);
   const [hoveredObjectId, setHoveredObjectId] = useState<number | null>(null);
 
   const handleImageSelected = async (file: File) => {
@@ -52,8 +53,23 @@ export const DetectPage: React.FC = () => {
     setPrediction(res);
   };
 
+  const handleLiveDetection = (res: PredictionResponse | null) => {
+    setLivePrediction(res);
+  };
+
   const resetDetection = () => {
     setPrediction(null);
+    setLivePrediction(null);
+    setError(null);
+  };
+
+  // Active display prediction (saved scan or live continuous scan)
+  const currentDisplayPrediction = prediction || (activeMode === 'camera' ? livePrediction : null);
+
+  const handleModeChange = (mode: 'upload' | 'camera') => {
+    setActiveMode(mode);
+    setPrediction(null);
+    setLivePrediction(null);
     setError(null);
   };
 
@@ -73,7 +89,7 @@ export const DetectPage: React.FC = () => {
         {/* Dual Mode Switcher Tabs */}
         <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-900 border border-slate-800 shadow-lg">
           <button
-            onClick={() => setActiveMode('upload')}
+            onClick={() => handleModeChange('upload')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               activeMode === 'upload'
                 ? 'bg-eco-600 text-white shadow-md'
@@ -85,7 +101,7 @@ export const DetectPage: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setActiveMode('camera')}
+            onClick={() => handleModeChange('camera')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               activeMode === 'camera'
                 ? 'bg-eco-600 text-white shadow-md'
@@ -147,22 +163,7 @@ export const DetectPage: React.FC = () => {
         
         {/* Left Column: Input Ingestion Area (Upload or Camera) */}
         <div className="lg:col-span-7 flex flex-col gap-6">
-          {!prediction ? (
-            <div className="p-6 rounded-3xl bg-slate-900/40 border border-slate-800/80 shadow-2xl backdrop-blur-xl">
-              {activeMode === 'upload' ? (
-                <ImageUploader
-                  onImageSelected={handleImageSelected}
-                  isLoading={isLoading}
-                  error={error}
-                />
-              ) : (
-                <WebcamCapture
-                  onScanCompleted={handleCameraScanCompleted}
-                  confidenceThreshold={confidenceThreshold}
-                />
-              )}
-            </div>
-          ) : (
+          {activeMode === 'upload' && prediction ? (
             <div className="flex flex-col gap-4 p-6 rounded-3xl bg-slate-900/40 border border-slate-800/80 shadow-2xl backdrop-blur-xl">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
@@ -183,45 +184,61 @@ export const DetectPage: React.FC = () => {
                 hoveredObjectId={hoveredObjectId}
               />
             </div>
+          ) : (
+            <div className="p-6 rounded-3xl bg-slate-900/40 border border-slate-800/80 shadow-2xl backdrop-blur-xl">
+              {activeMode === 'upload' ? (
+                <ImageUploader
+                  onImageSelected={handleImageSelected}
+                  isLoading={isLoading}
+                  error={error}
+                />
+              ) : (
+                <WebcamCapture
+                  onScanCompleted={handleCameraScanCompleted}
+                  onLiveDetection={handleLiveDetection}
+                  confidenceThreshold={confidenceThreshold}
+                />
+              )}
+            </div>
           )}
         </div>
 
         {/* Right Column: Structured Results & Disposal Recommendations */}
         <div className="lg:col-span-5 flex flex-col gap-5">
-          {prediction ? (
+          {currentDisplayPrediction && currentDisplayPrediction.objects && currentDisplayPrediction.objects.length > 0 ? (
             <div className="flex flex-col gap-5 animate-in fade-in duration-300">
               
               {/* Detection Summary Header Banner */}
               <div className="p-5 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-850 border border-slate-800 shadow-xl flex items-center justify-between">
                 <div>
                   <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">
-                    Primary Classification
+                    {activeMode === 'camera' && !prediction ? 'Real-time Live Classification' : 'Primary Classification'}
                   </span>
                   <h3 className="text-xl font-black text-white">
-                    {prediction.primary_category}
+                    {currentDisplayPrediction.primary_category}
                   </h3>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    {prediction.total_objects} object{prediction.total_objects > 1 ? 's' : ''} detected
-                    • {prediction.model_mode === 'custom_fine_tuned' ? 'Fine-Tuned YOLOv8' : 'Pretrained Semantic YOLOv8'}
+                    {currentDisplayPrediction.total_objects} object{currentDisplayPrediction.total_objects > 1 ? 's' : ''} detected
+                    • {currentDisplayPrediction.model_mode === 'custom_fine_tuned' ? 'Fine-Tuned YOLOv8' : 'Pretrained Semantic YOLOv8'}
                   </p>
                 </div>
 
                 <div className="text-right">
                   <span className="text-2xl font-black text-eco-400">
-                    {Math.round(prediction.average_confidence * 100)}%
+                    {Math.round(currentDisplayPrediction.average_confidence * 100)}%
                   </span>
                   <span className="text-[10px] block text-slate-400 font-semibold">avg confidence</span>
                 </div>
               </div>
 
               {/* Low-confidence Warning Notification if applicable */}
-              {prediction.is_low_confidence && (
+              {currentDisplayPrediction.is_low_confidence && (
                 <div className="flex items-start gap-3 p-4 rounded-2xl bg-amber-950/60 border border-amber-800/80 text-amber-300 text-xs">
                   <AlertTriangle className="w-5 h-5 flex-shrink-0 text-amber-400 mt-0.5" />
                   <div>
                     <strong className="block font-bold">Uncertain Detection Warning</strong>
                     <span className="leading-relaxed">
-                      {prediction.warning_message ||
+                      {currentDisplayPrediction.warning_message ||
                         'Visual confidence is below your configured threshold. Please ensure adequate lighting and center the waste object.'}
                     </span>
                   </div>
@@ -232,12 +249,12 @@ export const DetectPage: React.FC = () => {
               <div className="flex flex-col gap-3.5">
                 <div className="flex items-center justify-between">
                   <h4 className="text-sm font-bold text-slate-200">
-                    Individual Object Recommendations ({prediction.objects.length})
+                    Individual Object Recommendations ({currentDisplayPrediction.objects.length})
                   </h4>
-                  <span className="text-xs text-slate-500">Hover item to highlight HUD</span>
+                  <span className="text-xs text-slate-500">Live target bins</span>
                 </div>
 
-                {prediction.objects.map((obj) => (
+                {currentDisplayPrediction.objects.map((obj) => (
                   <DetectionCard
                     key={obj.object_id}
                     detection={obj}

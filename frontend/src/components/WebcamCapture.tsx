@@ -17,6 +17,7 @@ import { PredictionResponse, DetectedObject } from '../types';
 
 interface WebcamCaptureProps {
   onScanCompleted: (result: PredictionResponse) => void;
+  onLiveDetection?: (result: PredictionResponse | null) => void;
   confidenceThreshold?: number;
 }
 
@@ -34,11 +35,13 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 export const WebcamCapture: React.FC<WebcamCaptureProps> = ({
   onScanCompleted,
+  onLiveDetection,
   confidenceThreshold,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const [isStreaming, setIsStreaming] = useState(false);
   const [isContinuousScanning, setIsContinuousScanning] = useState(false);
@@ -50,34 +53,94 @@ export const WebcamCapture: React.FC<WebcamCaptureProps> = ({
   const streamRef = useRef<MediaStream | null>(null);
   const frameTimerRef = useRef<number | null>(null);
   const lastFrameTimeRef = useRef<number>(Date.now());
+  const isProcessingRef = useRef(false);
 
-  // Start Camera Stream
+  // Helper to sync overlay canvas pixel resolution and dimensions with actual video dimensions
+  const syncCanvasDimensions = useCallback(() => {
+    const video = videoRef.current;
+    const canvas = overlayCanvasRef.current;
+    if (!video || !canvas) return;
+
+    const vw = video.videoWidth || 640;
+    const vh = video.videoHeight || 480;
+
+    if (canvas.width !== vw || canvas.height !== vh) {
+      canvas.width = vw;
+      canvas.height = vh;
+    }
+  }, []);
+
+  // Helper to bind the active stream to the video DOM element and start playback
+  const attachStreamToVideo = useCallback(() => {
+    const video = videoRef.current;
+    const stream = streamRef.current;
+    if (!video || !stream) return;
+
+    if (video.srcObject !== stream) {
+      video.srcObject = stream;
+    }
+    video.play().catch((playErr) => {
+      console.warn('video.play() was interrupted or waiting for user gesture:', playErr);
+    });
+    syncCanvasDimensions();
+  }, [syncCanvasDimensions]);
+
+  // Synchronize stream attachment whenever isStreaming state changes
+  useEffect(() => {
+    if (isStreaming && streamRef.current) {
+      attachStreamToVideo();
+    }
+  }, [isStreaming, attachStreamToVideo]);
+
+  // Start Camera Stream with progressive fallback
   const startCamera = async () => {
     setCameraError(null);
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: { ideal: 640 },
-          height: { ideal: 480 },
-          facingMode: 'environment',
-        },
-        audio: false,
-      });
 
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setCameraError('Your browser or environment does not support camera capture (getUserMedia is unavailable or requires HTTPS / localhost).');
+      return;
+    }
+
+    try {
+      let stream: MediaStream;
+      try {
+        // Try preferred resolution first
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            width: { ideal: 1280, min: 640 },
+            height: { ideal: 720, min: 480 },
+            facingMode: 'environment',
+          },
+          audio: false,
+        });
+      } catch (firstErr) {
+        console.warn('Preferred camera constraints failed, trying basic video constraints...', firstErr);
+        // Fallback to any available video device
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false,
+        });
+      }
+
+      streamRef.current = stream;
+      setIsStreaming(true);
+
+      // Attempt immediate binding if video element is already mounted
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.play();
-        streamRef.current = stream;
-        setIsStreaming(true);
+        videoRef.current.play().catch((e) => console.warn('video.play() failed:', e));
+        syncCanvasDimensions();
       }
     } catch (err: any) {
       console.error('Camera access error:', err);
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-        setCameraError('Camera access was denied by your browser. Please allow camera permissions in browser settings.');
+        setCameraError('Camera permission was blocked. Please click the camera icon in your browser URL address bar to allow camera access.');
       } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-        setCameraError('No camera found on this device. You can still use Image Upload mode!');
+        setCameraError('No webcam was detected on your device. You can still test with the Image Upload mode.');
+      } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+        setCameraError('Camera is already in use by another application (Zoom, Teams, or another browser tab). Please close other camera apps and retry.');
       } else {
-        setCameraError(`Camera error: ${err.message || 'Unable to access video stream.'}`);
+        setCameraError(`Camera error: ${err.message || 'Unable to access video device.'}`);
       }
       setIsStreaming(false);
     }
@@ -96,8 +159,15 @@ export const WebcamCapture: React.FC<WebcamCaptureProps> = ({
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
+    const canvas = overlayCanvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      ctx?.clearRect(0, 0, canvas.width, canvas.height);
+    }
     setIsStreaming(false);
     setIsContinuousScanning(false);
+    setLatestDetection(null);
+    if (onLiveDetection) onLiveDetection(null);
   };
 
   useEffect(() => {
@@ -106,27 +176,33 @@ export const WebcamCapture: React.FC<WebcamCaptureProps> = ({
     };
   }, []);
 
-  // Draw real-time bounding boxes on overlay canvas
+  // Draw real-time bounding boxes on overlay canvas (accounting for video letterboxing/aspect ratio)
   const drawOverlay = (detections: DetectedObject[]) => {
     const canvas = overlayCanvasRef.current;
-    if (!canvas || !videoRef.current) return;
+    const video = videoRef.current;
+    if (!canvas || !video) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const w = canvas.width;
-    const h = canvas.height;
+    const vw = video.videoWidth || 640;
+    const vh = video.videoHeight || 480;
 
-    ctx.clearRect(0, 0, w, h);
+    if (canvas.width !== vw || canvas.height !== vh) {
+      canvas.width = vw;
+      canvas.height = vh;
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     detections.forEach((det) => {
       const color = CATEGORY_COLORS[det.category] || '#2563eb';
       const bbox = det.bounding_box;
 
-      const x1 = bbox.x1 * w;
-      const y1 = bbox.y1 * h;
-      const x2 = bbox.x2 * w;
-      const y2 = bbox.y2 * h;
+      const x1 = bbox.x1 * canvas.width;
+      const y1 = bbox.y1 * canvas.height;
+      const x2 = bbox.x2 * canvas.width;
+      const y2 = bbox.y2 * canvas.height;
       const boxW = x2 - x1;
       const boxH = y2 - y1;
 
@@ -137,17 +213,17 @@ export const WebcamCapture: React.FC<WebcamCaptureProps> = ({
 
       // Label background badge
       const labelText = `${det.label} (${Math.round(det.confidence * 100)}%)`;
-      ctx.font = 'bold 12px Outfit, sans-serif';
+      ctx.font = 'bold 13px Outfit, sans-serif';
       const textMetrics = ctx.measureText(labelText);
       const padding = 6;
-      const badgeH = 20;
+      const badgeH = 22;
       const badgeW = textMetrics.width + padding * 2;
 
       ctx.fillStyle = color;
       ctx.fillRect(x1, Math.max(0, y1 - badgeH), badgeW, badgeH);
 
       ctx.fillStyle = '#ffffff';
-      ctx.fillText(labelText, x1 + padding, Math.max(14, y1 - 5));
+      ctx.fillText(labelText, x1 + padding, Math.max(16, y1 - 6));
     });
   };
 
@@ -155,7 +231,7 @@ export const WebcamCapture: React.FC<WebcamCaptureProps> = ({
   const captureFrameBase64 = (): string | null => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    if (!video || !canvas || video.readyState !== 4) return null;
+    if (!video || !canvas || video.readyState < 2) return null;
 
     canvas.width = video.videoWidth || 640;
     canvas.height = video.videoHeight || 480;
@@ -170,11 +246,12 @@ export const WebcamCapture: React.FC<WebcamCaptureProps> = ({
   // Run single inference on current camera view
   const processFrame = useCallback(
     async (saveToHistory: boolean = false) => {
-      if (isProcessingFrame) return;
+      if (isProcessingRef.current) return;
 
       const base64Image = captureFrameBase64();
       if (!base64Image) return;
 
+      isProcessingRef.current = true;
       setIsProcessingFrame(true);
       try {
         const result = await apiService.predictFrame(
@@ -185,6 +262,9 @@ export const WebcamCapture: React.FC<WebcamCaptureProps> = ({
 
         setLatestDetection(result);
         drawOverlay(result.objects);
+        if (onLiveDetection) {
+          onLiveDetection(result);
+        }
 
         // Update FPS estimation
         const now = Date.now();
@@ -200,10 +280,11 @@ export const WebcamCapture: React.FC<WebcamCaptureProps> = ({
       } catch (err) {
         console.error('Frame inference error:', err);
       } finally {
+        isProcessingRef.current = false;
         setIsProcessingFrame(false);
       }
     },
-    [isProcessingFrame, confidenceThreshold, onScanCompleted]
+    [confidenceThreshold, onScanCompleted, onLiveDetection]
   );
 
   // Toggle Continuous Scanning Loop
@@ -221,80 +302,92 @@ export const WebcamCapture: React.FC<WebcamCaptureProps> = ({
       }
     } else {
       setIsContinuousScanning(true);
-      // Run inference every 600ms to preserve browser responsiveness and prevent network bottleneck
+      // Run first frame immediately
+      processFrame(false);
+      // Run inference every 600ms
       frameTimerRef.current = window.setInterval(() => {
         processFrame(false);
       }, 600);
     }
   };
 
-  // Sync overlay canvas dimensions with video
+  // Sync overlay canvas dimensions when metadata is available
   const onVideoLoadedMetadata = () => {
-    if (videoRef.current && overlayCanvasRef.current) {
-      overlayCanvasRef.current.width = videoRef.current.videoWidth || 640;
-      overlayCanvasRef.current.height = videoRef.current.videoHeight || 480;
-    }
+    syncCanvasDimensions();
   };
 
   return (
     <div className="flex flex-col gap-4 w-full">
       {/* Camera Viewport */}
-      <div className="relative w-full rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center min-h-[380px] max-h-[540px] shadow-2xl">
+      <div 
+        ref={containerRef}
+        className="relative w-full rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center min-h-[380px] max-h-[540px] shadow-2xl"
+      >
         
         {/* Hidden capture canvas */}
         <canvas ref={canvasRef} className="hidden" />
 
-        {isStreaming ? (
-          <div className="relative w-full h-full flex items-center justify-center">
-            <video
-              ref={videoRef}
-              playsInline
-              muted
-              onLoadedMetadata={onVideoLoadedMetadata}
-              className="w-full h-full object-contain mx-auto block"
-            />
-            {/* Real-time Bounding Box Canvas Overlay */}
-            <canvas
-              ref={overlayCanvasRef}
-              className="absolute inset-0 w-full h-full pointer-events-none object-contain"
-            />
+        {/* Live Camera Video Viewport (always mounted to avoid DOM ref mounting race conditions) */}
+        <div className={`relative w-full h-full flex items-center justify-center ${isStreaming ? 'block' : 'hidden'}`}>
+          <video
+            ref={(el) => {
+              (videoRef as any).current = el;
+              if (el && streamRef.current && el.srcObject !== streamRef.current) {
+                el.srcObject = streamRef.current;
+                el.play().catch(console.warn);
+              }
+            }}
+            autoPlay
+            playsInline
+            muted
+            onLoadedMetadata={syncCanvasDimensions}
+            onCanPlay={syncCanvasDimensions}
+            className="w-full h-full object-contain mx-auto block max-h-[520px]"
+          />
+          {/* Real-time Bounding Box Canvas Overlay */}
+          <canvas
+            ref={overlayCanvasRef}
+            className="absolute inset-0 w-full h-full pointer-events-none object-contain max-h-[520px]"
+          />
 
-            {/* Live Camera HUD Indicator */}
-            <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-slate-800 text-xs text-white">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+          {/* Live Camera HUD Indicator */}
+          <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-slate-800 text-xs text-white">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+            </span>
+            <span className="font-semibold uppercase tracking-wider text-[10px]">LIVE FEED</span>
+            {isContinuousScanning && (
+              <span className="text-[10px] text-eco-400 font-mono pl-1 border-l border-slate-700">
+                {fps} FPS
               </span>
-              <span className="font-semibold uppercase tracking-wider text-[10px]">LIVE FEED</span>
-              {isContinuousScanning && (
-                <span className="text-[10px] text-eco-400 font-mono pl-1 border-l border-slate-700">
-                  {fps} FPS
-                </span>
-              )}
-            </div>
-
-            {/* Top Right Live Category Pill */}
-            {latestDetection && latestDetection.objects.length > 0 && (
-              <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950/90 backdrop-blur-md border border-slate-800 shadow-xl">
-                <span
-                  className="w-2.5 h-2.5 rounded-full"
-                  style={{
-                    backgroundColor:
-                      CATEGORY_COLORS[latestDetection.primary_category] || '#22c55e',
-                  }}
-                />
-                <div className="text-right">
-                  <p className="text-xs font-bold text-white">
-                    {latestDetection.primary_category}
-                  </p>
-                  <p className="text-[10px] text-slate-400">
-                    {latestDetection.objects[0].disposal_info.recommended_bin}
-                  </p>
-                </div>
-              </div>
             )}
           </div>
-        ) : (
+
+          {/* Top Right Live Category Pill */}
+          {latestDetection && latestDetection.objects.length > 0 && (
+            <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950/90 backdrop-blur-md border border-slate-800 shadow-xl">
+              <span
+                className="w-2.5 h-2.5 rounded-full"
+                style={{
+                  backgroundColor:
+                    CATEGORY_COLORS[latestDetection.primary_category] || '#22c55e',
+                }}
+              />
+              <div className="text-right">
+                <p className="text-xs font-bold text-white">
+                  {latestDetection.primary_category}
+                </p>
+                <p className="text-[10px] text-slate-400">
+                  {latestDetection.objects[0].disposal_info.recommended_bin}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Camera Off Placeholder */}
+        {!isStreaming && (
           <div className="flex flex-col items-center justify-center p-8 text-center text-slate-500">
             <CameraOff className="w-14 h-14 mb-3 text-slate-600 stroke-1" />
             <h4 className="text-base font-semibold text-slate-300">Live Camera is Off</h4>
