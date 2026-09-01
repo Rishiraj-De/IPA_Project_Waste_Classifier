@@ -7,9 +7,10 @@ import {
   AlertTriangle, 
   CheckCircle2, 
   RefreshCw, 
-  Trash2, 
-  HelpCircle, 
-  FileText 
+  Radio, 
+  ShieldCheck,
+  Zap,
+  ArrowUpRight
 } from 'lucide-react';
 import { ImageUploader } from '../components/ImageUploader';
 import { WebcamCapture } from '../components/WebcamCapture';
@@ -17,6 +18,8 @@ import { BoundingBoxOverlay } from '../components/BoundingBoxOverlay';
 import { DetectionCard } from '../components/DetectionCard';
 import { apiService } from '../services/api';
 import { PredictionResponse } from '../types';
+
+import { sound } from '../utils/audio';
 
 export const DetectPage: React.FC = () => {
   const [activeMode, setActiveMode] = useState<'upload' | 'camera'>('upload');
@@ -33,13 +36,16 @@ export const DetectPage: React.FC = () => {
   const [hoveredObjectId, setHoveredObjectId] = useState<number | null>(null);
 
   const handleImageSelected = async (file: File) => {
+    sound.playScan();
     setIsLoading(true);
     setError(null);
     try {
       const res = await apiService.predictImage(file, enhanceContrast, confidenceThreshold);
       setPrediction(res);
+      sound.playSuccess();
     } catch (err: any) {
       console.error('Prediction failed:', err);
+      sound.playClick(300);
       setError(
         err.response?.data?.detail ||
           'Failed to classify waste image. Please verify format and try again.'
@@ -50,6 +56,7 @@ export const DetectPage: React.FC = () => {
   };
 
   const handleCameraScanCompleted = (res: PredictionResponse) => {
+    sound.playSuccess();
     setPrediction(res);
   };
 
@@ -58,15 +65,16 @@ export const DetectPage: React.FC = () => {
   };
 
   const resetDetection = () => {
+    sound.playClick();
     setPrediction(null);
     setLivePrediction(null);
     setError(null);
   };
 
-  // Active display prediction (saved scan or live continuous scan)
   const currentDisplayPrediction = prediction || (activeMode === 'camera' ? livePrediction : null);
 
   const handleModeChange = (mode: 'upload' | 'camera') => {
+    sound.playClick();
     setActiveMode(mode);
     setPrediction(null);
     setLivePrediction(null);
@@ -74,52 +82,59 @@ export const DetectPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-8 pb-16">
-      {/* Top Header & Mode Switcher */}
-      <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800">
+    <div className="flex flex-col gap-10 pb-20 text-[#F5F5F0]">
+      
+      {/* Top Header: "Point. Scan. Sort." */}
+      <div className="flex flex-wrap items-end justify-between gap-6 pb-6 border-b border-white/[0.08] text-left">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Waste Detection & Segregation Hub
+          <span className="text-xs font-mono uppercase tracking-widest text-emerald-400 block mb-1">
+            [ AI DIAGNOSTIC INTERFACE ]
+          </span>
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
+            Point. Scan. Sort.
           </h2>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Capture or upload waste to localize materials and generate disposal advice
+          <p className="text-xs sm:text-sm text-[#8C8C87] mt-1 max-w-xl font-normal">
+            Automated visual spectrometry localizing physical matter and resolving municipal routing instructions in under 40ms.
           </p>
         </div>
 
         {/* Dual Mode Switcher Tabs */}
-        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-900 border border-slate-800 shadow-lg">
+        <div className="flex items-center gap-1 p-1 rounded-full bg-white/[0.03] border border-white/[0.08] backdrop-blur-md">
           <button
             onClick={() => handleModeChange('upload')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold tracking-tight transition-all duration-200 ${
               activeMode === 'upload'
-                ? 'bg-eco-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-white text-black shadow-md'
+                : 'text-[#8C8C87] hover:text-white'
             }`}
           >
-            <Upload className="w-4 h-4" />
-            <span>Image Upload</span>
+            <Upload className="w-3.5 h-3.5" />
+            <span>Upload Image</span>
           </button>
 
           <button
             onClick={() => handleModeChange('camera')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold tracking-tight transition-all duration-200 ${
               activeMode === 'camera'
-                ? 'bg-eco-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-white text-black shadow-md'
+                : 'text-[#8C8C87] hover:text-white'
             }`}
           >
-            <Camera className="w-4 h-4" />
-            <span>Live Webcam</span>
+            <Camera className="w-3.5 h-3.5" />
+            <span>Live Camera</span>
           </button>
         </div>
       </div>
 
-      {/* Advanced Settings Drawer (Confidence slider, enhancements) */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/60 border border-slate-800 text-xs">
-        <div className="flex items-center gap-3">
-          <Sliders className="w-4 h-4 text-eco-400" />
-          <span className="font-semibold text-slate-300">Confidence Threshold:</span>
-          <div className="flex items-center gap-2">
+      {/* Advanced Telemetry & Precision Drawer */}
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] text-xs font-mono">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-2.5 text-[#8C8C87]">
+            <Sliders className="w-3.5 h-3.5 text-emerald-400" />
+            <span>CONFIDENCE THRESHOLD:</span>
+          </div>
+          
+          <div className="flex items-center gap-3">
             <input
               type="range"
               min="0.20"
@@ -127,51 +142,51 @@ export const DetectPage: React.FC = () => {
               step="0.05"
               value={confidenceThreshold}
               onChange={(e) => setConfidenceThreshold(parseFloat(e.target.value))}
-              className="w-28 sm:w-36 accent-eco-500 cursor-pointer"
+              className="w-28 sm:w-36 accent-emerald-400 cursor-pointer"
             />
-            <span className="font-mono font-bold text-white bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
+            <span className="font-bold text-white bg-white/[0.06] px-2.5 py-0.5 rounded-full border border-white/[0.1]">
               {Math.round(confidenceThreshold * 100)}%
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 text-slate-300 cursor-pointer">
+        <div className="flex items-center gap-4">
+          <label className="flex items-center gap-2 text-[#8C8C87] hover:text-white cursor-pointer transition-colors">
             <input
               type="checkbox"
               checked={enhanceContrast}
               onChange={(e) => setEnhanceContrast(e.target.checked)}
-              className="rounded accent-eco-500 w-3.5 h-3.5"
+              className="rounded accent-emerald-400 w-3.5 h-3.5 cursor-pointer"
             />
-            <span>Auto Image Contrast Enhancement</span>
+            <span>Enhance Contrast Filter</span>
           </label>
 
           {prediction && (
             <button
               onClick={resetDetection}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-colors"
+              className="cred-button-secondary px-3 py-1 text-[11px] font-bold flex items-center gap-1.5 uppercase"
             >
-              <RefreshCw className="w-3.5 h-3.5" />
-              <span>New Scan</span>
+              <RefreshCw className="w-3 h-3" />
+              <span>Reset Scan</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* Main Detection Workspace */}
+      {/* Main Diagnostic Workspace */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        {/* Left Column: Input Ingestion Area (Upload or Camera) */}
+        {/* Left Column: Visual Ingestion Area (Upload or Camera) */}
         <div className="lg:col-span-7 flex flex-col gap-6">
           {activeMode === 'upload' && prediction ? (
-            <div className="flex flex-col gap-4 p-6 rounded-3xl bg-slate-900/40 border border-slate-800/80 shadow-2xl backdrop-blur-xl">
-              <div className="flex items-center justify-between">
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-eco-400" />
+            <div className="cred-card p-6 flex flex-col gap-4">
+              <div className="flex items-center justify-between text-left">
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-emerald-400" />
                   Visual Bounding Box Localization
                 </h3>
-                <span className="text-xs text-slate-400 font-mono">
-                  {prediction.inference_time_ms} ms
+                <span className="text-xs text-[#8C8C87] font-mono">
+                  LATENCY: {prediction.inference_time_ms} ms
                 </span>
               </div>
 
@@ -185,7 +200,7 @@ export const DetectPage: React.FC = () => {
               />
             </div>
           ) : (
-            <div className="p-6 rounded-3xl bg-slate-900/40 border border-slate-800/80 shadow-2xl backdrop-blur-xl">
+            <div className="cred-card p-6">
               {activeMode === 'upload' ? (
                 <ImageUploader
                   onImageSelected={handleImageSelected}
@@ -203,55 +218,79 @@ export const DetectPage: React.FC = () => {
           )}
         </div>
 
-        {/* Right Column: Structured Results & Disposal Recommendations */}
+        {/* Right Column: High-Contrast Diagnostic Readout */}
         <div className="lg:col-span-5 flex flex-col gap-5">
           {currentDisplayPrediction && currentDisplayPrediction.objects && currentDisplayPrediction.objects.length > 0 ? (
             <div className="flex flex-col gap-5 animate-in fade-in duration-300">
               
-              {/* Detection Summary Header Banner */}
-              <div className="p-5 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-850 border border-slate-800 shadow-xl flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">
-                    {activeMode === 'camera' && !prediction ? 'Real-time Live Classification' : 'Primary Classification'}
+              {/* Primary Diagnostic Banner */}
+              <div className="cred-card p-6 border border-white/[0.12] flex flex-col gap-4 text-left relative overflow-hidden">
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">
+                    {activeMode === 'camera' && !prediction ? 'LIVE STREAM INFERENCE' : 'PRIMARY DIAGNOSTIC'}
                   </span>
-                  <h3 className="text-xl font-black text-white">
+                  <span className="text-xs font-mono text-[#8C8C87]">
+                    {currentDisplayPrediction.model_mode === 'custom_fine_tuned' ? 'YOLOv8 CUSTOM' : 'YOLOv8 BACKBONE'}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-xs font-mono text-[#8C8C87] uppercase block mb-1">
+                    WASTE DETECTED
+                  </span>
+                  <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
                     {currentDisplayPrediction.primary_category}
                   </h3>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    {currentDisplayPrediction.total_objects} object{currentDisplayPrediction.total_objects > 1 ? 's' : ''} detected
-                    • {currentDisplayPrediction.model_mode === 'custom_fine_tuned' ? 'Fine-Tuned YOLOv8' : 'Pretrained Semantic YOLOv8'}
-                  </p>
                 </div>
 
-                <div className="text-right">
-                  <span className="text-2xl font-black text-eco-400">
-                    {Math.round(currentDisplayPrediction.average_confidence * 100)}%
-                  </span>
-                  <span className="text-[10px] block text-slate-400 font-semibold">avg confidence</span>
+                <div className="flex items-center justify-between pt-3 border-t border-white/[0.08] font-mono">
+                  <div>
+                    <span className="text-[10px] text-[#525252] uppercase block">CONFIDENCE</span>
+                    <span className="text-xl font-black text-emerald-400">
+                      {Math.round(currentDisplayPrediction.average_confidence * 100)}%
+                    </span>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] text-[#525252] uppercase block">ITEMS SEGREGATED</span>
+                    <span className="text-xl font-black text-white">
+                      {currentDisplayPrediction.total_objects}
+                    </span>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] text-[#525252] uppercase block">RECOVERY STATUS</span>
+                    <span className="text-xs font-bold text-emerald-400 flex items-center gap-1 mt-1">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      ROUTED
+                    </span>
+                  </div>
                 </div>
+
               </div>
 
-              {/* Low-confidence Warning Notification if applicable */}
+              {/* Low-confidence Warning Notification */}
               {currentDisplayPrediction.is_low_confidence && (
-                <div className="flex items-start gap-3 p-4 rounded-2xl bg-amber-950/60 border border-amber-800/80 text-amber-300 text-xs">
-                  <AlertTriangle className="w-5 h-5 flex-shrink-0 text-amber-400 mt-0.5" />
+                <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-500/[0.06] border border-amber-500/20 text-amber-200 text-xs font-mono leading-relaxed text-left">
+                  <AlertTriangle className="w-4 h-4 flex-shrink-0 text-amber-400 mt-0.5" />
                   <div>
-                    <strong className="block font-bold">Uncertain Detection Warning</strong>
-                    <span className="leading-relaxed">
+                    <strong className="block text-amber-300">LOW CONFIDENCE DETECTION</strong>
+                    <span>
                       {currentDisplayPrediction.warning_message ||
-                        'Visual confidence is below your configured threshold. Please ensure adequate lighting and center the waste object.'}
+                        'Visual clarity is below configured threshold. Center the object and adjust ambient lighting.'}
                     </span>
                   </div>
                 </div>
               )}
 
-              {/* List of Individual Detected Objects */}
-              <div className="flex flex-col gap-3.5">
+              {/* Individual Detected Object Cards */}
+              <div className="flex flex-col gap-3 text-left">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-bold text-slate-200">
-                    Individual Object Recommendations ({currentDisplayPrediction.objects.length})
+                  <h4 className="text-xs font-mono uppercase tracking-widest text-[#8C8C87]">
+                    RESOLVED OBJECTS ({currentDisplayPrediction.objects.length})
                   </h4>
-                  <span className="text-xs text-slate-500">Live target bins</span>
+                  <span className="text-[10px] font-mono text-[#525252]">SORT INSTRUCTIONS</span>
                 </div>
 
                 {currentDisplayPrediction.objects.map((obj) => (
@@ -264,31 +303,31 @@ export const DetectPage: React.FC = () => {
                   />
                 ))}
               </div>
+
             </div>
           ) : (
-            /* Empty State Placeholder when no scan performed yet */
-            <div className="flex flex-col items-center justify-center p-10 rounded-3xl bg-slate-900/30 border border-slate-800/60 text-center text-slate-500 min-h-[400px]">
-              <div className="w-16 h-16 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center mb-4">
-                <Trash2 className="w-8 h-8 text-slate-600" />
+            /* Standby State */
+            <div className="cred-card p-10 flex flex-col items-center justify-center text-center text-[#8C8C87] min-h-[420px]">
+              <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex items-center justify-center mb-4 text-white">
+                <Radio className="w-6 h-6 text-emerald-400 animate-pulse" />
               </div>
-              <h4 className="text-base font-bold text-slate-300">Awaiting Waste Scan</h4>
-              <p className="text-xs text-slate-500 mt-1.5 max-w-xs leading-relaxed">
-                Upload an image or start the live camera on the left to inspect bounding boxes, 
-                confidence scoring, and disposal bin recommendations.
+              <h4 className="text-base font-bold text-white tracking-tight">System Ready For Scan</h4>
+              <p className="text-xs text-[#8C8C87] mt-1.5 max-w-xs leading-relaxed">
+                Upload a photograph or enable your webcam on the left to initiate real-time visual spectrometry.
               </p>
 
-              <div className="flex flex-col gap-2 mt-6 w-full max-w-xs text-left text-xs text-slate-400 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80">
+              <div className="flex flex-col gap-2.5 mt-8 w-full max-w-xs text-left text-xs font-mono text-[#CCCCCC] bg-white/[0.02] p-4 rounded-xl border border-white/[0.06]">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-eco-400" />
-                  <span>Real-time Object Localization</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Automated Bounding Box Tracking</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-eco-400" />
-                  <span>Configurable Confidence Thresholds</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Sub-40ms Inference Pipeline</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-eco-400" />
-                  <span>Disposal Prep Instructions</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Exact Municipal Disposal Directives</span>
                 </div>
               </div>
             </div>
@@ -296,6 +335,7 @@ export const DetectPage: React.FC = () => {
         </div>
 
       </div>
+
     </div>
   );
 };

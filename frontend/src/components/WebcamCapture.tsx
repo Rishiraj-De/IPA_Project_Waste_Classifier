@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { apiService } from '../services/api';
 import { PredictionResponse, DetectedObject } from '../types';
+import { sound } from '../utils/audio';
 
 interface WebcamCaptureProps {
   onScanCompleted: (result: PredictionResponse) => void;
@@ -290,6 +291,7 @@ export const WebcamCapture: React.FC<WebcamCaptureProps> = ({
   // Toggle Continuous Scanning Loop
   const toggleContinuousScanning = () => {
     if (isContinuousScanning) {
+      sound.playClick(600);
       if (frameTimerRef.current) {
         clearInterval(frameTimerRef.current);
         frameTimerRef.current = null;
@@ -301,6 +303,7 @@ export const WebcamCapture: React.FC<WebcamCaptureProps> = ({
         ctx?.clearRect(0, 0, canvas.width, canvas.height);
       }
     } else {
+      sound.playScan();
       setIsContinuousScanning(true);
       // Run first frame immediately
       processFrame(false);
@@ -321,13 +324,13 @@ export const WebcamCapture: React.FC<WebcamCaptureProps> = ({
       {/* Camera Viewport */}
       <div 
         ref={containerRef}
-        className="relative w-full rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center min-h-[380px] max-h-[540px] shadow-2xl"
+        className="relative w-full rounded-2xl overflow-hidden bg-[#060606] border border-white/[0.1] flex items-center justify-center min-h-[380px] max-h-[540px] shadow-2xl"
       >
         
         {/* Hidden capture canvas */}
         <canvas ref={canvasRef} className="hidden" />
 
-        {/* Live Camera Video Viewport (always mounted to avoid DOM ref mounting race conditions) */}
+        {/* Live Camera Video Viewport */}
         <div className={`relative w-full h-full flex items-center justify-center ${isStreaming ? 'block' : 'hidden'}`}>
           <video
             ref={(el) => {
@@ -350,15 +353,17 @@ export const WebcamCapture: React.FC<WebcamCaptureProps> = ({
             className="absolute inset-0 w-full h-full pointer-events-none object-contain max-h-[520px]"
           />
 
+          {/* Laser Scanning Line during continuous scan */}
+          {isContinuousScanning && (
+            <div className="absolute inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent animate-laser shadow-[0_0_15px_#10B981]" />
+          )}
+
           {/* Live Camera HUD Indicator */}
-          <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-slate-800 text-xs text-white">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-            </span>
-            <span className="font-semibold uppercase tracking-wider text-[10px]">LIVE FEED</span>
+          <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/80 backdrop-blur-xl border border-white/[0.12] text-xs font-mono text-white">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span className="font-bold uppercase tracking-wider text-[10px] text-emerald-400">FEED ACTIVE</span>
             {isContinuousScanning && (
-              <span className="text-[10px] text-eco-400 font-mono pl-1 border-l border-slate-700">
+              <span className="text-[10px] text-[#8C8C87] pl-1 border-l border-white/[0.1]">
                 {fps} FPS
               </span>
             )}
@@ -366,19 +371,19 @@ export const WebcamCapture: React.FC<WebcamCaptureProps> = ({
 
           {/* Top Right Live Category Pill */}
           {latestDetection && latestDetection.objects.length > 0 && (
-            <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950/90 backdrop-blur-md border border-slate-800 shadow-xl">
+            <div className="absolute top-4 right-4 flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl bg-black/90 backdrop-blur-xl border border-white/[0.15] shadow-2xl text-left font-mono">
               <span
-                className="w-2.5 h-2.5 rounded-full"
+                className="w-2 h-2 rounded-full flex-shrink-0"
                 style={{
                   backgroundColor:
-                    CATEGORY_COLORS[latestDetection.primary_category] || '#22c55e',
+                    CATEGORY_COLORS[latestDetection.primary_category] || '#10B981',
                 }}
               />
-              <div className="text-right">
-                <p className="text-xs font-bold text-white">
+              <div>
+                <p className="text-xs font-bold text-white tracking-tight">
                   {latestDetection.primary_category}
                 </p>
-                <p className="text-[10px] text-slate-400">
+                <p className="text-[9px] text-emerald-400 uppercase">
                   {latestDetection.objects[0].disposal_info.recommended_bin}
                 </p>
               </div>
@@ -388,18 +393,20 @@ export const WebcamCapture: React.FC<WebcamCaptureProps> = ({
 
         {/* Camera Off Placeholder */}
         {!isStreaming && (
-          <div className="flex flex-col items-center justify-center p-8 text-center text-slate-500">
-            <CameraOff className="w-14 h-14 mb-3 text-slate-600 stroke-1" />
-            <h4 className="text-base font-semibold text-slate-300">Live Camera is Off</h4>
-            <p className="text-xs text-slate-500 mt-1 max-w-sm">
-              Activate your webcam to scan waste objects in real-time with automated bounding box tracking.
+          <div className="flex flex-col items-center justify-center p-8 text-center text-[#8C8C87]">
+            <div className="w-14 h-14 rounded-2xl bg-white/[0.04] border border-white/[0.1] flex items-center justify-center mb-4">
+              <CameraOff className="w-6 h-6 text-[#CCCCCC]" />
+            </div>
+            <h4 className="text-base font-bold text-white tracking-tight">Camera Feed Inactive</h4>
+            <p className="text-xs text-[#8C8C87] mt-1 max-w-sm font-normal">
+              Activate your hardware webcam to classify waste objects in real time with automated neural bounding box tracking.
             </p>
             <button
               onClick={startCamera}
-              className="mt-5 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-eco-600 to-cyan-600 hover:from-eco-500 hover:to-cyan-500 text-white text-sm font-semibold shadow-lg shadow-eco-600/20 transition-all hover:scale-105"
+              className="mt-6 cred-button-primary px-7 py-3 text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-2xl"
             >
-              <Video className="w-4 h-4" />
-              Enable Camera Stream
+              <Video className="w-3.5 h-3.5" />
+              <span>Enable Camera Stream</span>
             </button>
           </div>
         )}
@@ -407,36 +414,36 @@ export const WebcamCapture: React.FC<WebcamCaptureProps> = ({
 
       {/* Permission / Hardware Error Notice */}
       {cameraError && (
-        <div className="flex items-center gap-3 p-4 rounded-xl bg-amber-950/60 border border-amber-800/80 text-amber-300 text-sm">
-          <AlertTriangle className="w-5 h-5 flex-shrink-0 text-amber-400" />
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-amber-500/[0.08] border border-amber-500/20 text-amber-200 text-xs font-mono text-left">
+          <AlertTriangle className="w-4 h-4 flex-shrink-0 text-amber-400" />
           <div>
-            <p className="font-semibold">Camera Access Warning</p>
-            <p className="text-xs text-amber-400/90">{cameraError}</p>
+            <p className="font-bold text-amber-300 uppercase">Camera Hardware Notice</p>
+            <p className="text-xs text-amber-200/90">{cameraError}</p>
           </div>
         </div>
       )}
 
       {/* Camera Controls Bar */}
       {isStreaming && (
-        <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
+        <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-[#0D0D0D] border border-white/[0.08] font-mono">
           <div className="flex items-center gap-2">
             <button
               onClick={toggleContinuousScanning}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all ${
                 isContinuousScanning
-                  ? 'bg-amber-600/90 hover:bg-amber-600 text-white shadow-md'
-                  : 'bg-eco-600/90 hover:bg-eco-600 text-white shadow-md'
+                  ? 'bg-amber-500 text-black shadow-md'
+                  : 'bg-emerald-500 text-black shadow-md'
               }`}
             >
               {isContinuousScanning ? (
                 <>
-                  <Square className="w-3.5 h-3.5 fill-white" />
-                  Pause Live Scanning
+                  <Square className="w-3 h-3 fill-black" />
+                  <span>PAUSE STREAM</span>
                 </>
               ) : (
                 <>
-                  <Zap className="w-3.5 h-3.5 text-yellow-300 fill-yellow-300" />
-                  Start Real-time Inference
+                  <Zap className="w-3 h-3 text-black fill-black" />
+                  <span>START REAL-TIME SCAN</span>
                 </>
               )}
             </button>
@@ -444,19 +451,19 @@ export const WebcamCapture: React.FC<WebcamCaptureProps> = ({
             <button
               onClick={() => processFrame(true)}
               disabled={isProcessingFrame}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md transition-all disabled:opacity-50"
+              className="cred-button-secondary px-4 py-2 text-xs font-bold flex items-center gap-2 disabled:opacity-40"
             >
-              <Save className="w-3.5 h-3.5" />
-              Capture & Save to History
+              <Save className="w-3 h-3" />
+              <span>CAPTURE & SAVE</span>
             </button>
           </div>
 
           <button
             onClick={stopCamera}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-950/30 text-xs font-medium transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[#8C8C87] hover:text-rose-400 hover:bg-rose-500/10 text-xs font-semibold transition-colors"
           >
-            <VideoOff className="w-4 h-4" />
-            Stop Camera
+            <VideoOff className="w-3.5 h-3.5" />
+            <span>STOP FEED</span>
           </button>
         </div>
       )}

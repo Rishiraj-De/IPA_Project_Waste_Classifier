@@ -9,6 +9,8 @@ import { apiService } from './services/api';
 import { SystemHealth } from './types';
 import { Recycle, Heart, Terminal, Cpu } from 'lucide-react';
 
+import { AmbientBackground } from './components/AmbientBackground';
+
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('landing');
   const [systemHealth, setSystemHealth] = useState<SystemHealth | null>(null);
@@ -29,7 +31,10 @@ export const App: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-950 text-slate-100">
+    <div className="flex flex-col min-h-screen bg-[#080808] text-[#F5F5F0] selection:bg-emerald-500/30 selection:text-emerald-200 relative overflow-x-hidden">
+      {/* Ambient Interactive Cyber Spotlight Grid */}
+      <AmbientBackground />
+
       {/* Top Navbar */}
       <Navbar
         activeTab={activeTab}
@@ -38,7 +43,7 @@ export const App: React.FC = () => {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-20">
         {activeTab === 'landing' && (
           <LandingPage
             onStartScanning={() => setActiveTab('detect')}
@@ -55,30 +60,34 @@ export const App: React.FC = () => {
         {activeTab === 'model' && <ModelInfoPage systemHealth={systemHealth} />}
       </main>
 
-      {/* Footer */}
-      <footer className="mt-auto border-t border-slate-900 bg-slate-950/90 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-eco-600 flex items-center justify-center text-white">
-              <Recycle className="w-3.5 h-3.5" />
+      {/* CRED-Inspired Minimal Editorial Footer */}
+      <footer className="mt-auto border-t border-white/[0.08] bg-[#0A0A0A]/90 backdrop-blur-xl py-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-[#8C8C87]">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-white/[0.06] border border-white/[0.12] flex items-center justify-center text-white">
+              <span className="font-mono text-xs font-bold text-emerald-400">Ø</span>
             </div>
-            <span className="font-semibold text-slate-300">
-              AI Smart Waste Classification & Segregation System
-            </span>
+            <div>
+              <span className="font-extrabold text-[#F5F5F0] text-sm tracking-tight">
+                CLASSIFY<span className="text-emerald-400">.AI</span>
+              </span>
+              <p className="text-[11px] text-[#525252] font-mono">Autonomous Waste Intelligence System</p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4 text-[11px]">
-            <span>FastAPI Backend</span>
-            <span>•</span>
-            <span>Ultralytics YOLOv8</span>
-            <span>•</span>
-            <span>React + TypeScript</span>
-            <span>•</span>
-            <span>SQLAlchemy SQLite</span>
+          <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-[#8C8C87] font-medium">
+            <span className="hover:text-white transition-colors cursor-pointer">YOLOv8 Vision Backbone</span>
+            <span className="text-[#333333]">•</span>
+            <span className="hover:text-white transition-colors cursor-pointer">Circular Material Engine</span>
+            <span className="text-[#333333]">•</span>
+            <span className="hover:text-white transition-colors cursor-pointer">Sub-40ms Inference</span>
+            <span className="text-[#333333]">•</span>
+            <span className="hover:text-white transition-colors cursor-pointer">Zero Data Retention</span>
           </div>
 
-          <div className="flex items-center gap-1 text-slate-400">
-            <span>Engineering Major Project</span>
+          <div className="flex items-center gap-2 text-[11px] font-mono text-[#8C8C87] bg-white/[0.03] border border-white/[0.08] px-3.5 py-1.5 rounded-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>SYSTEM STATUS: OPERATIONAL</span>
           </div>
         </div>
       </footer>

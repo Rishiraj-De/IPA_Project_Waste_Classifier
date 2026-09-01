@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Upload, Image as ImageIcon, AlertCircle, Sparkles, CheckCircle2, RefreshCw } from 'lucide-react';
+import { sound } from '../utils/audio';
 
 interface ImageUploaderProps {
   onImageSelected: (file: File) => void;
@@ -90,27 +91,44 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   };
 
   const loadPreset = async (preset: typeof DEMO_PRESETS[0]) => {
-    const res = await fetch(preset.svgData);
-    const blob = await res.blob();
-    const file = new File([blob], `${preset.name.toLowerCase().replace(/\s+/g, '_')}.png`, {
-      type: 'image/png',
-    });
-    onImageSelected(file);
+    sound.playScan();
+    // Rasterize SVG into a real PNG blob using an offscreen canvas
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 400;
+      canvas.height = 400;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.drawImage(img, 0, 0);
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        const file = new File([blob], `${preset.name.toLowerCase().replace(/\s+/g, '_')}.png`, {
+          type: 'image/png',
+        });
+        onImageSelected(file);
+      }, 'image/png');
+    };
+    img.src = preset.svgData;
   };
 
   return (
-    <div className="flex flex-col gap-5 w-full">
+    <div className="flex flex-col gap-6 w-full">
       {/* Drag & Drop Area */}
       <div
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
         onDrop={handleDrop}
-        onClick={() => fileInputRef.current?.click()}
-        className={`relative flex flex-col items-center justify-center p-8 sm:p-12 rounded-2xl border-2 border-dashed transition-all cursor-pointer text-center group ${
+        onClick={() => {
+          sound.playClick();
+          fileInputRef.current?.click();
+        }}
+        className={`relative flex flex-col items-center justify-center p-8 sm:p-14 rounded-2xl border-2 border-dashed transition-all duration-200 cursor-pointer text-center group ${
           isDragOver
-            ? 'border-eco-500 bg-eco-950/20 scale-[1.01]'
-            : 'border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/60'
+            ? 'border-emerald-400 bg-emerald-500/[0.04] scale-[1.01]'
+            : 'border-white/[0.1] hover:border-white/30 bg-[#0A0A0A] hover:bg-white/[0.02]'
         }`}
       >
         <input
@@ -122,75 +140,76 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
           disabled={isLoading}
         />
 
-        <div className="w-16 h-16 rounded-2xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:border-eco-500/50 transition-all">
-          <Upload className="w-8 h-8 text-eco-400" />
+        <div className="w-14 h-14 rounded-2xl bg-white/[0.04] border border-white/[0.1] flex items-center justify-center mb-4 group-hover:scale-110 group-hover:border-white/30 transition-all">
+          <Upload className="w-6 h-6 text-white" />
         </div>
 
-        <h3 className="text-base sm:text-lg font-bold text-slate-200 group-hover:text-white transition-colors">
-          Click to upload or drag & drop waste image
+        <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-emerald-400 transition-colors tracking-tight">
+          Select photograph or drop file to analyze
         </h3>
-        <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-sm">
-          Supports JPG, JPEG, PNG, or WEBP (up to 15MB). The AI model will detect objects and recommend disposal bins.
+        <p className="text-xs text-[#8C8C87] mt-1.5 max-w-sm font-normal">
+          Accepts JPG, PNG, WEBP (up to 15MB). Automated YOLOv8 vision isolates bounds & routes to designated bin.
         </p>
 
-        {/* Badges */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
-          <span className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700/50">
-            YOLOv8 Detection
+        {/* Minimal Monospace Badges */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mt-5 font-mono">
+          <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-white/[0.04] text-[#CCCCCC] border border-white/[0.08]">
+            YOLOv8 VISION
           </span>
-          <span className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700/50">
-            Smart Bin Advice
+          <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-white/[0.04] text-[#CCCCCC] border border-white/[0.08]">
+            &lt; 40MS LATENCY
           </span>
-          <span className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700/50">
-            High Precision
+          <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-emerald-500/[0.08] text-emerald-400 border border-emerald-500/20">
+            ZERO RETENTION
           </span>
         </div>
 
         {/* Loading Overlay */}
         {isLoading && (
-          <div className="absolute inset-0 rounded-2xl bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center gap-3">
-            <RefreshCw className="w-8 h-8 text-eco-400 animate-spin" />
-            <p className="text-sm font-semibold text-slate-200">Executing Deep Vision Inference...</p>
-            <p className="text-xs text-slate-400">Classifying waste & resolving disposal rules</p>
+          <div className="absolute inset-0 rounded-2xl bg-black/90 backdrop-blur-md flex flex-col items-center justify-center gap-3">
+            <RefreshCw className="w-8 h-8 text-emerald-400 animate-spin" />
+            <p className="text-sm font-bold text-white font-mono tracking-wider uppercase">Executing Neural Inference...</p>
+            <p className="text-xs text-[#8C8C87] font-mono">Classifying material structure & municipal rules</p>
           </div>
         )}
       </div>
 
       {/* Error Banner */}
       {error && (
-        <div className="flex items-center gap-3 p-4 rounded-xl bg-red-950/60 border border-red-800/80 text-red-300 text-sm">
-          <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-400" />
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-rose-500/[0.08] border border-rose-500/20 text-rose-300 text-xs font-mono">
+          <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-400" />
           <span>{error}</span>
         </div>
       )}
 
       {/* Quick Test Presets */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-eco-400" />
-            Quick Test Samples (One-Click Testing)
+      <div className="flex flex-col gap-3 text-left">
+        <div className="flex items-center justify-between font-mono">
+          <span className="text-xs font-bold uppercase tracking-widest text-[#8C8C87] flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+            ONE-CLICK TEST ARTIFACTS
           </span>
-          <span className="text-[11px] text-slate-500">Click any preset to run immediate inference</span>
+          <span className="text-[10px] text-[#525252]">CLICK TO INFER</span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
           {DEMO_PRESETS.map((preset) => (
             <button
               key={preset.name}
+              onMouseEnter={() => sound.playHover()}
               onClick={() => loadPreset(preset)}
               disabled={isLoading}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-900/70 hover:bg-slate-800/90 border border-slate-800 hover:border-slate-700 text-left transition-all group"
+              className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/[0.06] hover:border-white/20 text-left transition-all duration-200 group"
             >
               <span
-                className="w-2.5 h-2.5 rounded-full flex-shrink-0 group-hover:scale-125 transition-transform"
+                className="w-2 h-2 rounded-full flex-shrink-0 group-hover:scale-125 transition-transform"
                 style={{ backgroundColor: preset.color }}
               />
               <div className="truncate">
-                <p className="text-xs font-semibold text-slate-300 group-hover:text-white truncate">
+                <p className="text-xs font-bold text-white group-hover:text-emerald-400 truncate tracking-tight">
                   {preset.name}
                 </p>
-                <p className="text-[10px] text-slate-500">{preset.category}</p>
+                <p className="text-[10px] font-mono text-[#8C8C87] uppercase">{preset.category}</p>
               </div>
             </button>
           ))}

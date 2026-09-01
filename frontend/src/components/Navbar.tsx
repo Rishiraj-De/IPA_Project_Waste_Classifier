@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { 
-  Recycle, 
   Camera, 
   BarChart3, 
   History, 
@@ -8,11 +7,14 @@ import {
   Home, 
   Menu, 
   X, 
-  Activity, 
-  CheckCircle2, 
-  AlertCircle 
+  ArrowUpRight,
+  ShieldCheck,
+  Sparkles,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
 import { SystemHealth } from '../types';
+import { sound } from '../utils/audio';
 
 interface NavbarProps {
   activeTab: string;
@@ -22,112 +24,161 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, systemHealth }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [audioEnabled, setAudioEnabled] = useState(true);
+
+  const toggleAudio = () => {
+    const next = !audioEnabled;
+    sound.enabled = next;
+    setAudioEnabled(next);
+    if (next) sound.playSuccess();
+  };
 
   const navItems = [
-    { id: 'landing', label: 'Overview', icon: Home },
-    { id: 'detect', label: 'Waste Scanner', icon: Camera, badge: 'Live AI' },
-    { id: 'dashboard', label: 'Analytics', icon: BarChart3 },
-    { id: 'history', label: 'Scan Audit', icon: History },
-    { id: 'model', label: 'Model Info', icon: Cpu },
+    { id: 'landing', label: 'Overview' },
+    { id: 'detect', label: 'Scanner', badge: 'v8.4' },
+    { id: 'dashboard', label: 'Intelligence' },
+    { id: 'history', label: 'Audit Log' },
+    { id: 'model', label: 'Architecture' },
   ];
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/80 border-b border-slate-800/80">
+    <header className="sticky top-0 z-50 backdrop-blur-2xl bg-[#080808]/85 border-b border-white/[0.08] transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-20">
           
-          {/* Brand / Logo */}
+          {/* CRED-Inspired Minimal Brand Logo */}
           <div 
             className="flex items-center gap-3 cursor-pointer group"
-            onClick={() => setActiveTab('landing')}
+            onClick={() => {
+              sound.playClick();
+              setActiveTab('landing');
+            }}
           >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-eco-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-eco-500/20 group-hover:scale-105 transition-transform">
-              <Recycle className="w-6 h-6 text-white animate-spin-slow" />
+            <div className="w-9 h-9 rounded-xl bg-white/[0.06] border border-white/[0.12] flex items-center justify-center text-white shadow-inner group-hover:border-white/30 group-hover:scale-105 transition-all">
+              <span className="font-mono text-sm font-extrabold text-emerald-400">Ø</span>
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
-                  EcoSort<span className="text-eco-400">AI</span>
-                </span>
-                <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-eco-500/10 text-eco-400 border border-eco-500/20">
-                  YOLOv8
+              <div className="flex items-center gap-1.5">
+                <span className="font-black text-lg tracking-tight text-[#F5F5F0]">
+                  CLASSIFY<span className="text-emerald-400">.AI</span>
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 -mt-0.5">Smart Waste Segregation System</p>
+              <p className="text-[10px] text-[#8C8C87] font-mono tracking-wider uppercase -mt-0.5">
+                Waste Intelligence
+              </p>
             </div>
           </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-1">
+          {/* Desktop Navigation Links */}
+          <nav className="hidden md:flex items-center gap-1 bg-white/[0.03] border border-white/[0.06] p-1.5 rounded-full backdrop-blur-md">
             {navItems.map((item) => {
-              const Icon = item.icon;
               const isActive = activeTab === item.id;
               return (
                 <button
                   key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all ${
+                  onMouseEnter={() => sound.playHover()}
+                  onClick={() => {
+                    sound.playClick();
+                    setActiveTab(item.id);
+                  }}
+                  className={`relative flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold tracking-tight transition-all duration-200 ${
                     isActive
-                      ? 'text-white bg-slate-800/90 shadow-sm border border-slate-700/60'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+                      ? 'text-black bg-[#F5F5F0] shadow-sm font-bold'
+                      : 'text-[#8C8C87] hover:text-[#F5F5F0] hover:bg-white/[0.04]'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-eco-400' : 'text-slate-400'}`} />
                   {item.label}
                   {item.badge && (
-                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-eco-500/20 text-eco-300 border border-eco-500/30">
+                    <span className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-full ${
+                      isActive ? 'bg-emerald-600 text-white' : 'bg-white/[0.08] text-[#8C8C87]'
+                    }`}>
                       {item.badge}
                     </span>
-                  )}
-                  {isActive && (
-                    <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-gradient-to-r from-eco-500 to-cyan-400 rounded-full" />
                   )}
                 </button>
               );
             })}
           </nav>
 
-          {/* System Status Pill */}
+          {/* Right Action: Sound Toggle, Status Pill & Primary Scan CTA */}
           <div className="hidden lg:flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/90 border border-slate-800 text-xs">
-              {systemHealth?.status === 'healthy' ? (
+            
+            {/* Audio Toggle */}
+            <button
+              onClick={toggleAudio}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-mono transition-all ${
+                audioEnabled
+                  ? 'bg-emerald-500/[0.08] border-emerald-500/25 text-emerald-300'
+                  : 'bg-white/[0.02] border-white/[0.06] text-[#525252]'
+              }`}
+              title={audioEnabled ? 'Futuristic SFX Audio Enabled' : 'SFX Audio Muted'}
+            >
+              {audioEnabled ? (
                 <>
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-eco-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-eco-500"></span>
-                  </span>
-                  <span className="text-slate-300 font-medium">Inference Engine Active</span>
-                  <span className="text-[10px] text-slate-400 font-mono">
-                    ({systemHealth.model.mode === 'custom_fine_tuned' ? 'Fine-Tuned' : 'COCO Pretrained'})
-                  </span>
+                  <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-[10px] uppercase font-bold tracking-wider">SFX ON</span>
                 </>
               ) : (
                 <>
-                  <span className="h-2 w-2 rounded-full bg-amber-500"></span>
-                  <span className="text-slate-300 font-medium">Connecting...</span>
+                  <VolumeX className="w-3.5 h-3.5 text-[#525252]" />
+                  <span className="text-[10px] uppercase font-bold tracking-wider">SFX OFF</span>
+                </>
+              )}
+            </button>
+
+            {/* Live Model Health Indicator */}
+            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] text-[11px] font-mono text-[#8C8C87]">
+              {systemHealth?.status === 'healthy' ? (
+                <>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span className="text-[#A3A39E]">SYSTEM READY</span>
+                  <span className="text-[#525252] font-normal">| 40ms</span>
+                </>
+              ) : (
+                <>
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                  <span className="text-[#8C8C87]">INITIALIZING</span>
                 </>
               )}
             </div>
+
+            {/* Primary Action Button */}
+            <button
+              onMouseEnter={() => sound.playHover()}
+              onClick={() => {
+                sound.playTargetLock();
+                setActiveTab('detect');
+              }}
+              className="cred-button-primary px-5 py-2 text-xs flex items-center gap-1.5 uppercase tracking-wider font-extrabold"
+            >
+              <span>Scan Waste</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </button>
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-2">
+            <button
+              onClick={() => setActiveTab('detect')}
+              className="cred-button-primary px-3.5 py-1.5 text-xs font-bold"
+            >
+              Scan
+            </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900 border border-slate-800"
+              className="p-2 rounded-xl text-[#8C8C87] hover:text-white bg-white/[0.04] border border-white/[0.08]"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
 
         </div>
       </div>
 
-      {/* Mobile Dropdown */}
+      {/* Mobile Dropdown Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden px-4 pt-2 pb-4 space-y-1 bg-slate-950/95 border-b border-slate-800 backdrop-blur-2xl">
+        <div className="md:hidden px-4 pt-3 pb-5 space-y-2 bg-[#0C0C0C] border-b border-white/[0.08] shadow-2xl">
           {navItems.map((item) => {
-            const Icon = item.icon;
             const isActive = activeTab === item.id;
             return (
               <button
@@ -136,18 +187,17 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, systemH
                   setActiveTab(item.id);
                   setMobileMenuOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-base font-medium transition-all ${
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
                   isActive
-                    ? 'text-white bg-slate-800/80 border border-slate-700'
-                    : 'text-slate-300 hover:bg-slate-900'
+                    ? 'text-black bg-[#F5F5F0] font-bold'
+                    : 'text-[#8C8C87] hover:text-white hover:bg-white/[0.04]'
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <Icon className={`w-5 h-5 ${isActive ? 'text-eco-400' : 'text-slate-400'}`} />
-                  {item.label}
-                </div>
+                <span>{item.label}</span>
                 {item.badge && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-eco-500/20 text-eco-300">
+                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
+                    isActive ? 'bg-emerald-600 text-white' : 'bg-white/[0.08] text-[#8C8C87]'
+                  }`}>
                     {item.badge}
                   </span>
                 )}
