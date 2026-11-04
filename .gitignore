@@ -25,3 +25,9 @@ __pycache__/
 node_modules/
 frontend/node_modules/
 frontend/dist/
+# Next.js App
+nextjs-app/node_modules/
+nextjs-app/.next/
+nextjs-app/.vercel/
+nextjs-app/out/
+*.tsbuildinfo

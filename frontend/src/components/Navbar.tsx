@@ -42,11 +42,11 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, systemH
   ];
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-2xl bg-[#080808]/85 border-b border-white/[0.08] transition-all">
+    <header className="sticky top-0 z-50 backdrop-blur-3xl bg-[#080808]/70 border-b border-white/[0.12] transition-all shadow-2xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           
-          {/* CRED-Inspired Minimal Brand Logo */}
+          {/* Minimal Brand Logo with Glass Icon */}
           <div 
             className="flex items-center gap-3 cursor-pointer group"
             onClick={() => {
@@ -54,7 +54,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, systemH
               setActiveTab('landing');
             }}
           >
-            <div className="w-9 h-9 rounded-xl bg-white/[0.06] border border-white/[0.12] flex items-center justify-center text-white shadow-inner group-hover:border-white/30 group-hover:scale-105 transition-all">
+            <div className="w-9 h-9 rounded-xl bg-white/[0.07] backdrop-blur-md border border-white/[0.16] flex items-center justify-center text-white shadow-inner group-hover:border-white/40 group-hover:scale-105 transition-all">
               <span className="font-mono text-sm font-extrabold text-emerald-400">Ø</span>
             </div>
             <div>
@@ -69,8 +69,8 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, systemH
             </div>
           </div>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1 bg-white/[0.03] border border-white/[0.06] p-1.5 rounded-full backdrop-blur-md">
+          {/* Frosted Glass Navigation Pill Container */}
+          <nav className="hidden md:flex items-center gap-1 bg-white/[0.04] border border-white/[0.1] p-1.5 rounded-full backdrop-blur-2xl shadow-xl">
             {navItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
@@ -83,8 +83,8 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, systemH
                   }}
                   className={`relative flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold tracking-tight transition-all duration-200 ${
                     isActive
-                      ? 'text-black bg-[#F5F5F0] shadow-sm font-bold'
-                      : 'text-[#8C8C87] hover:text-[#F5F5F0] hover:bg-white/[0.04]'
+                      ? 'text-black bg-[#F5F5F0] shadow-md font-bold'
+                      : 'text-[#8C8C87] hover:text-[#F5F5F0] hover:bg-white/[0.06]'
                   }`}
                 >
                   {item.label}
@@ -106,10 +106,10 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, systemH
             {/* Audio Toggle */}
             <button
               onClick={toggleAudio}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-mono transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-mono backdrop-blur-xl transition-all ${
                 audioEnabled
-                  ? 'bg-emerald-500/[0.08] border-emerald-500/25 text-emerald-300'
-                  : 'bg-white/[0.02] border-white/[0.06] text-[#525252]'
+                  ? 'bg-emerald-500/[0.09] border-emerald-500/30 text-emerald-300 shadow-sm'
+                  : 'bg-white/[0.03] border-white/[0.08] text-[#525252]'
               }`}
               title={audioEnabled ? 'Futuristic SFX Audio Enabled' : 'SFX Audio Muted'}
             >
@@ -127,7 +127,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, systemH
             </button>
 
             {/* Live Model Health Indicator */}
-            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] text-[11px] font-mono text-[#8C8C87]">
+            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] backdrop-blur-xl border border-white/[0.12] text-[11px] font-mono text-[#8C8C87] shadow-sm">
               {systemHealth?.status === 'healthy' ? (
                 <>
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
