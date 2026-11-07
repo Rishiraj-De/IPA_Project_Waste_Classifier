@@ -17,7 +17,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({
   value,
   subtitle,
   icon: Icon,
-  colorHex = '#10B981',
+  colorHex = '#5F7B38',
   trend,
   trendPositive = true,
 }) => {

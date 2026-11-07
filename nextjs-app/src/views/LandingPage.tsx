@@ -1,241 +1,197 @@
 'use client';
-import React, { useState } from 'react';
-import { ArrowUpRight, ArrowRight, ShieldCheck, CheckCircle2, XCircle, Camera, Leaf } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import {
+  ArrowRight,
+  ChevronRight,
+  CheckCircle2,
+  XCircle,
+  Camera,
+  Milk,
+  BatteryFull,
+  CupSoda,
+  Apple,
+  Cpu,
+  Sprout,
+  Recycle,
+  TriangleAlert,
+  Bandage,
+  Trash2,
+  Leaf,
+  type LucideIcon,
+} from 'lucide-react';
 import { sound } from '../utils/audio';
 import { Landscape } from '../components/Landscape';
+import { apiService } from '../services/api';
+import { HistoryItem } from '../types';
 
 interface LandingPageProps {
   onStartScanning: () => void;
   onOpenDashboard: () => void;
   onOpenImpact?: () => void;
+  onOpenHistory?: () => void;
 }
 
-interface HeroItem {
+interface ExampleItem {
   id: string;
   name: string;
-  emoji: string;
+  icon: LucideIcon;
   material: string;
-  category: 'DRY WASTE' | 'WET WASTE' | 'HAZARDOUS' | 'E-WASTE';
-  disposal: 'RECYCLABLE' | 'COMPOSTABLE' | 'HAZARDOUS DEPOT' | 'E-WASTE VAULT';
-  color: string;
+  stream: string;
+  disposal: string;
   why: string;
   preparation: string;
 }
 
-const HERO_ITEMS: HeroItem[] = [
+const EXAMPLES: ExampleItem[] = [
   {
     id: 'bottle',
-    name: 'PET Plastic Bottle',
-    emoji: '🧴',
-    material: 'Polyethylene Terephthalate (PET #1)',
-    category: 'DRY WASTE',
-    disposal: 'RECYCLABLE',
-    color: '#4878ad',
-    why: 'High-purity thermoplastic polymer. Fully recyclable into spun polyester fibre or food-grade rPET resin.',
-    preparation: 'Empty liquid residue, remove non-PET cap, flatten to optimize bin volume.',
+    name: 'PET plastic bottle',
+    icon: Milk,
+    material: 'Polyethylene terephthalate (PET #1)',
+    stream: 'Dry waste',
+    disposal: 'Recyclable',
+    why: 'High-purity thermoplastic. Fully recyclable into polyester fibre or food-grade rPET.',
+    preparation: 'Empty it, remove the cap and flatten it to save space in the bin.',
   },
   {
     id: 'battery',
-    name: 'Lithium-Ion Battery',
-    emoji: '🔋',
-    material: 'Lithium Cobalt Oxide (LiCoO2)',
-    category: 'HAZARDOUS',
-    disposal: 'HAZARDOUS DEPOT',
-    color: '#c2453b',
-    why: 'Heavy metal content and fire risk if punctured. Requires specialized metallurgical cathode extraction.',
-    preparation: 'Tape battery terminals with electrical tape. Store dry away from thermal sources.',
+    name: 'Lithium-ion battery',
+    icon: BatteryFull,
+    material: 'Lithium cobalt oxide (LiCoO2)',
+    stream: 'Hazardous',
+    disposal: 'Hazardous depot',
+    why: 'Heavy metals and a fire risk if punctured. Needs specialist cathode recovery.',
+    preparation: 'Tape the terminals and keep it dry, away from heat.',
   },
   {
     id: 'can',
-    name: 'Aluminium Beverage Can',
-    emoji: '🥫',
-    material: 'Aluminium Alloy 3104',
-    category: 'DRY WASTE',
-    disposal: 'RECYCLABLE',
-    color: '#6b7280',
-    why: 'Infinitely recyclable without structural degradation. Saves 95% energy compared to raw bauxite smelting.',
-    preparation: 'Rinse briefly. Do not crush if required by deposit return barcode scanners.',
+    name: 'Aluminium drinks can',
+    icon: CupSoda,
+    material: 'Aluminium alloy 3104',
+    stream: 'Dry waste',
+    disposal: 'Recyclable',
+    why: 'Recyclable forever without losing quality, using 95% less energy than new aluminium.',
+    preparation: 'Give it a quick rinse. Leave it uncrushed if your deposit scheme scans barcodes.',
   },
   {
     id: 'food',
-    name: 'Organic Food Waste',
-    emoji: '🥑',
-    material: 'Biodegradable Organic Lignocellulose',
-    category: 'WET WASTE',
-    disposal: 'COMPOSTABLE',
-    color: '#5f8c1e',
-    why: 'Rapidly anaerobically degrades in landfill, generating methane. Ideal for aerobic compost or biogas digesters.',
-    preparation: 'Keep free from plastic wrappers or twist ties. Transfer to green compost bin.',
+    name: 'Food scraps',
+    icon: Apple,
+    material: 'Biodegradable organic matter',
+    stream: 'Wet waste',
+    disposal: 'Compostable',
+    why: 'In landfill it rots without air and releases methane. Compost or biogas avoids that.',
+    preparation: 'Keep out plastic wrappers and twist ties, then use the green bin.',
   },
   {
     id: 'circuit',
-    name: 'Printed Circuit Board',
-    emoji: '📟',
-    material: 'FR-4 Copper Clad Laminate + Gold/Silver',
-    category: 'E-WASTE',
-    disposal: 'E-WASTE VAULT',
-    color: '#7a68a6',
-    why: 'Contains precious recoverable metals (Au, Ag, Cu) and trace toxic solder (Pb, Sn).',
-    preparation: 'Store in anti-static bag. Deliver to registered e-waste collection centre.',
+    name: 'Circuit board',
+    icon: Cpu,
+    material: 'FR-4 laminate with copper, gold and silver',
+    stream: 'E-waste',
+    disposal: 'E-waste centre',
+    why: 'Contains recoverable precious metals and traces of toxic solder.',
+    preparation: 'Put it in an anti-static bag and take it to an e-waste collection point.',
   },
+];
+
+const STREAMS: { name: string; icon: LucideIcon; bin: string; body: string }[] = [
+  { name: 'Wet waste', icon: Sprout, bin: 'Green bin', body: 'Kitchen scraps, leftovers, coffee grounds and soiled paper.' },
+  { name: 'Dry recyclable', icon: Recycle, bin: 'Blue bin', body: 'Paper, clean cardboard, PET and HDPE plastics, cans and glass.' },
+  { name: 'Hazardous', icon: TriangleAlert, bin: 'Secure depot', body: 'Batteries, aerosols, paint thinners, medicines and CFL tubes.' },
+  { name: 'E-waste', icon: Cpu, bin: 'Collection point', body: 'Phones, chargers, cables, circuit boards and old peripherals.' },
+  { name: 'Sanitary', icon: Bandage, bin: 'Wrapped, black bin', body: 'Diapers, hygiene products and medical swabs.' },
+  { name: 'General residual', icon: Trash2, bin: 'Black bin', body: 'Chip packets, thermoset plastics and mixed composites.' },
 ];
 
 const QUIZ_QUESTIONS = [
   {
-    question: 'Oily corrugated pizza box with cheese residue',
+    question: 'An oily pizza box with cheese stuck to it',
     options: [
-      { label: 'Dry Waste (Paper)', correct: false, reason: 'Grease and food oils bind to paper fibres and cannot be separated during water-based pulping.' },
-      { label: 'Wet / Compostable', correct: true, reason: 'Correct. Soiled paper decomposes organically in municipal compost or anaerobic digesters.' },
-      { label: 'Hazardous Waste', correct: false, reason: 'Not hazardous, but will contaminate pure paper recycling streams.' },
+      { label: 'Dry waste (paper)', correct: false, reason: 'Grease binds to paper fibres and cannot be separated when the paper is pulped.' },
+      { label: 'Wet / compostable', correct: true, reason: 'Soiled paper breaks down in compost or a biogas digester.' },
+      { label: 'Hazardous waste', correct: false, reason: 'It is not hazardous, but it would contaminate clean paper recycling.' },
     ],
   },
   {
-    question: 'Empty aerosol deodorant can (depressurized)',
+    question: 'An empty aerosol deodorant can',
     options: [
-      { label: 'Wet Waste', correct: false, reason: 'Aerosols are metallic and contain zero organic matter.' },
-      { label: 'Dry Waste (Metal)', correct: true, reason: 'Correct. Once fully emptied, steel and aluminium aerosol containers are recyclable dry metal.' },
-      { label: 'E-Waste', correct: false, reason: 'Aerosol cans do not contain electrical circuits or batteries.' },
+      { label: 'Wet waste', correct: false, reason: 'Aerosols are metal and contain no organic matter.' },
+      { label: 'Dry waste (metal)', correct: true, reason: 'Once fully empty, steel and aluminium aerosol cans are recyclable metal.' },
+      { label: 'E-waste', correct: false, reason: 'Aerosol cans have no circuits or batteries.' },
     ],
   },
   {
-    question: 'Broken smartphone glass with digitizer glued',
+    question: 'Broken phone glass with the touch layer still glued on',
     options: [
-      { label: 'Dry Glass Recycling', correct: false, reason: 'Treated Gorilla glass and optical laminates cannot be melted with standard bottle glass.' },
-      { label: 'E-Waste / Specialized', correct: true, reason: 'Correct. Requires dedicated electronic scrap processing for indium tin oxide recovery.' },
-      { label: 'General Compost', correct: false, reason: 'Glass and synthetic optical adhesives are non-biodegradable.' },
+      { label: 'Glass recycling', correct: false, reason: 'Treated screen glass and laminates cannot be melted with bottle glass.' },
+      { label: 'E-waste', correct: true, reason: 'It needs electronic scrap processing to recover the coatings safely.' },
+      { label: 'Compost', correct: false, reason: 'Glass and adhesives do not break down.' },
     ],
   },
 ];
 
-const STEPS = [
-  {
-    title: 'Identify',
-    body: 'YOLOv8 finds every object in the photo and draws a box around each one.',
-  },
-  {
-    title: 'Classify',
-    body: 'Each object is mapped to one of 9 standard municipal waste categories.',
-  },
-  {
-    title: 'Explain',
-    body: 'You get the reason behind the call, plus safety warnings and preparation steps.',
-  },
-  {
-    title: 'Act',
-    body: 'Drop it in the bin we point you to and keep the recycling stream clean.',
-  },
-];
+const timeAgo = (iso: string) => {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.round(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins} min ago`;
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return `${hours} h ago`;
+  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+};
 
-const STREAMS = [
-  {
-    name: 'Wet waste',
-    color: '#5f8c1e',
-    bin: 'Green bin',
-    route: 'Compost / biogas',
-    body: 'Kitchen scraps, raw vegetables, cooked leftovers, coffee grounds and soiled compostable paper.',
-  },
-  {
-    name: 'Dry recyclable',
-    color: '#4878ad',
-    bin: 'Blue bin',
-    route: 'Material recovery',
-    body: 'Paper, clean cardboard, PET, HDPE and PP plastics, steel and aluminium cans, and intact glass.',
-  },
-  {
-    name: 'Hazardous',
-    color: '#c2453b',
-    bin: 'Red / secure',
-    route: 'Special depot',
-    body: 'Lithium batteries, aerosols, paint thinners, expired medicines and CFL mercury tubes.',
-  },
-  {
-    name: 'E-waste',
-    color: '#7a68a6',
-    bin: 'Grey vault',
-    route: 'Smelter refinery',
-    body: 'Circuit boards, phones, chargers, copper cables and broken electronic peripherals.',
-  },
-  {
-    name: 'Sanitary',
-    color: '#c98a2b',
-    bin: 'Wrapped black',
-    route: 'High-temp incineration',
-    body: 'Diapers, personal hygiene products, medical swabs and biologically contaminated disposables.',
-  },
-  {
-    name: 'General residual',
-    color: '#6b6576',
-    bin: 'Black bin',
-    route: 'Engineered landfill',
-    body: 'Multi-layer chip packets, thermoset plastics and composite resins that cannot be recycled.',
-  },
-];
-
-// Figures below come from the repository itself:
-// mAP@50 from ml/evaluation/metrics/evaluation_report.json, 9 classes from the taxonomy,
-// and the two input modes offered on the Scan page.
-const FACTS = [
-  { value: '87%', label: ['mAP@50 in', 'evaluation'] },
-  { value: '9', label: ['Waste', 'categories'] },
-  { value: '2', label: ['Ways to scan:', 'photo, camera'] },
-];
-
-export const LandingPage: React.FC<LandingPageProps> = ({ onStartScanning, onOpenDashboard, onOpenImpact }) => {
-  const [selectedItem, setSelectedItem] = useState<HeroItem>(HERO_ITEMS[0]);
+export const LandingPage: React.FC<LandingPageProps> = ({ onStartScanning, onOpenDashboard, onOpenImpact, onOpenHistory }) => {
+  const [selected, setSelected] = useState<ExampleItem>(EXAMPLES[0]);
   const [quizIndex, setQuizIndex] = useState<number>(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const [recent, setRecent] = useState<HistoryItem[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    apiService
+      .getHistory({ limit: 4, sort_order: 'desc' })
+      .then((res) => {
+        if (!cancelled) setRecent(res.items || []);
+      })
+      .catch(() => {
+        if (!cancelled) setRecent([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const startScanning = () => {
     sound.playTargetLock();
     onStartScanning();
   };
 
+  const question = QUIZ_QUESTIONS[quizIndex];
+  const SelectedIcon = selected.icon;
+
   return (
-    <div className="flex flex-col gap-20 sm:gap-28 pb-12">
-      {/* 1. HERO */}
-      <section className="relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden bg-paper">
-        <Landscape className="block lg:hidden w-full h-56 sm:h-80" preserveAspectRatio="xMidYMid slice" />
-        <Landscape
-          className="hidden lg:block absolute inset-0 w-full h-full"
-          preserveAspectRatio="xMaxYMax slice"
-        />
-        {/* Paper panel with a lavender edge; stretches to whatever height the copy needs */}
-        <svg
-          viewBox="0 0 700 760"
-          preserveAspectRatio="none"
-          className="hidden lg:block absolute inset-y-0 left-0 w-[59%] h-full"
-          aria-hidden="true"
-        >
-          <path
-            d="M0 70 C260 20 470 70 540 230 C600 370 520 500 610 640 C640 690 670 730 700 760 L0 760 Z"
-            fill="var(--l-band)"
-          />
-          <path
-            d="M0 105 C240 60 420 100 490 250 C550 385 470 510 555 640 C585 690 615 730 640 760 L0 760 Z"
-            fill="var(--paper)"
-          />
-        </svg>
+    <div className="flex flex-col gap-16 sm:gap-24 pb-8">
+      {/* Hero */}
+      <section className="relative rounded-[2rem] sm:rounded-[2.75rem] overflow-hidden bg-blush border border-ink/[0.12] min-h-[640px] sm:min-h-[680px] lg:min-h-[640px] flex flex-col">
+        <Landscape className="lg:hidden absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMax meet" />
+        <Landscape className="hidden lg:block absolute inset-0 w-full h-full" />
 
-        <div className="relative bg-paper lg:bg-transparent px-6 pt-8 pb-8 sm:px-10 lg:pl-14 lg:pr-0 lg:pt-32 lg:pb-12 lg:max-w-[560px]">
-          <p className="kicker">We help you</p>
-          <h1 className="display text-[2.75rem] sm:text-6xl lg:text-[3.2rem] xl:text-[3.35rem] text-ink mt-3">
-            Sort waste
-            <br />
-            the right way
-          </h1>
-          <p className="mt-5 text-base sm:text-[17px] text-ink-soft leading-relaxed max-w-md">
-            Take a photo of anything you are about to throw away. Classify.ai recognises the material, tells you which
-            bin it belongs in and how to prepare it, so recyclables stay recyclable.
+        <div className="relative flex flex-col items-center text-center px-6 pt-16 sm:pt-24">
+          <h1 className="display text-[2.6rem] sm:text-6xl lg:text-7xl text-ink">Sort your waste</h1>
+          <p className="accent-thin text-[2.1rem] sm:text-5xl lg:text-6xl text-ink mt-1">the right way</p>
+          <p className="mt-6 text-base sm:text-lg text-ink-soft max-w-xl leading-relaxed">
+            Take a photo of anything you are about to throw away. Classify.ai tells you what it is, which bin it
+            belongs in and how to prepare it.
           </p>
-
-          <div className="flex flex-wrap items-center gap-4 mt-8">
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
             <button
               onMouseEnter={() => sound.playHover()}
               onClick={startScanning}
-              className="cred-button-primary px-7 py-3.5 text-[13px] uppercase flex items-center gap-2"
+              className="cred-button-primary px-8 py-4 text-base flex items-center gap-2"
             >
-              <span>Scan your waste</span>
-              <ArrowUpRight className="w-4 h-4" />
+              <Camera className="w-5 h-5" />
+              Start scanning
             </button>
             <button
               onMouseEnter={() => sound.playHover()}
@@ -243,247 +199,202 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartScanning, onOpe
                 sound.playClick();
                 onOpenDashboard();
               }}
-              className="text-[13px] uppercase tracking-[0.12em] font-medium text-ink hover:text-lavender-deep flex items-center gap-1.5 py-3"
+              className="px-8 py-4 rounded-2xl text-base font-medium text-ink bg-blush/80 border-[1.5px] border-ink/40 hover:bg-surface transition-colors"
             >
-              <span>See insights</span>
-              <ArrowRight className="w-4 h-4" />
+              See insights
             </button>
           </div>
-
-          <dl className="flex flex-wrap gap-x-8 gap-y-4 mt-10">
-            {FACTS.map((fact) => (
-              <div key={fact.value + fact.label[0]} className="flex items-center gap-2.5">
-                <dt className="sr-only">{fact.label.join(' ')}</dt>
-                <dd className="text-3xl sm:text-[2.6rem] font-medium text-lavender leading-none">{fact.value}</dd>
-                <dd className="text-[11px] sm:text-xs text-ink-soft leading-tight whitespace-nowrap" aria-hidden="true">
-                  {fact.label[0]}
-                  <br />
-                  {fact.label[1]}
-                </dd>
-              </div>
-            ))}
-          </dl>
         </div>
       </section>
 
-      {/* 2. ITEM EXPLORER */}
-      <section className="w-full">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-          <div>
-            <p className="kicker">Try it with an example</p>
-            <h2 className="display text-3xl sm:text-[2.6rem] text-ink mt-2">What goes where?</h2>
-          </div>
-          <p className="text-sm text-muted max-w-md leading-relaxed">
-            Pick a common item to see the kind of answer the scanner gives you: the material, the right stream and how
-            to prepare it.
+      {/* What goes where + disposal streams */}
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
+        <div className="cred-card p-6 sm:p-8">
+          <h2 className="display text-2xl sm:text-3xl text-ink">What goes where?</h2>
+          <p className="text-[15px] text-muted mt-2 leading-relaxed">
+            Pick an item to see the kind of answer the scanner gives you.
           </p>
-        </div>
 
-        <div className="flex flex-wrap items-center gap-2 mb-6" role="tablist" aria-label="Example items">
-          {HERO_ITEMS.map((item) => {
-            const isSelected = selectedItem.id === item.id;
-            return (
-              <button
-                key={item.id}
-                role="tab"
-                aria-selected={isSelected}
-                onMouseEnter={() => sound.playHover()}
-                onClick={() => {
-                  sound.playClick();
-                  setSelectedItem(item);
-                }}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-2 border ${
-                  isSelected
-                    ? 'bg-ink text-paper border-ink'
-                    : 'bg-surface text-ink-soft border-ink/[0.12] hover:border-ink/30'
-                }`}
-              >
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
-                <span>{item.name}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="cred-card p-5 sm:p-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-5 relative w-full aspect-[4/3] lg:aspect-square rounded-3xl bg-paper-2 flex items-center justify-center overflow-hidden">
-              <div className="relative w-40 h-40 sm:w-44 sm:h-44 rounded-2xl border-2 border-dashed border-leaf/70 flex items-center justify-center">
-                <span className="text-6xl select-none" aria-hidden="true">
-                  {selectedItem.emoji}
-                </span>
-                <span className="absolute -top-3.5 left-3 px-2.5 py-0.5 rounded-full bg-leaf text-on-leaf text-[11px] font-medium whitespace-nowrap">
-                  {selectedItem.name}
-                </span>
-              </div>
-            </div>
-
-            <div className="lg:col-span-7 flex flex-col gap-5">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-medium tracking-[0.08em] px-3 py-1 rounded-full bg-paper-2 text-ink-soft">
-                  {selectedItem.category}
-                </span>
-                <span className="text-xs font-medium tracking-[0.08em] px-3 py-1 rounded-full cred-badge-emerald flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  {selectedItem.disposal}
-                </span>
-              </div>
-
-              <div>
-                <h3 className="text-2xl sm:text-3xl font-semibold text-ink">{selectedItem.name}</h3>
-                <p className="text-sm text-muted mt-1">{selectedItem.material}</p>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-paper-2">
-                <p className="kicker !text-xs mb-1.5">Why it matters</p>
-                <p className="text-[15px] text-ink-soft leading-relaxed">{selectedItem.why}</p>
-              </div>
-
-              <div className="flex items-start gap-3 text-[15px] text-ink-soft leading-relaxed">
-                <ShieldCheck className="w-5 h-5 text-moss shrink-0 mt-0.5" />
-                <p>
-                  <strong className="font-semibold text-ink">Before you bin it:</strong> {selectedItem.preparation}
-                </p>
-              </div>
-
-              <div>
+          <div className="grid grid-cols-5 gap-2 sm:gap-3 mt-6" role="tablist" aria-label="Example items">
+            {EXAMPLES.map((item) => {
+              const Icon = item.icon;
+              const isSelected = selected.id === item.id;
+              return (
                 <button
+                  key={item.id}
+                  role="tab"
+                  aria-selected={isSelected}
+                  aria-label={item.name}
+                  title={item.name}
                   onMouseEnter={() => sound.playHover()}
-                  onClick={startScanning}
-                  className="cred-button-secondary px-6 py-3 text-xs uppercase tracking-[0.1em] flex items-center gap-2"
+                  onClick={() => {
+                    sound.playClick();
+                    setSelected(item);
+                  }}
+                  className={`aspect-square rounded-2xl flex items-center justify-center transition-colors ${
+                    isSelected ? 'bg-lime/70 text-ink' : 'bg-paper-2 text-ink-soft hover:bg-lime/40'
+                  }`}
                 >
-                  <Camera className="w-4 h-4" />
-                  <span>Scan your own items</span>
+                  <Icon className="w-7 h-7 sm:w-8 sm:h-8" strokeWidth={1.75} />
                 </button>
+              );
+            })}
+          </div>
+
+          <div className="mt-4 rounded-2xl bg-paper-2 p-5" role="tabpanel">
+            <div className="flex items-start gap-3">
+              <SelectedIcon className="w-5 h-5 mt-1 text-moss shrink-0" strokeWidth={1.75} />
+              <div>
+                <h3 className="text-lg font-semibold text-ink">{selected.name}</h3>
+                <p className="text-sm text-muted">{selected.material}</p>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. HOW IT WORKS */}
-      <section className="w-full">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-          <div>
-            <p className="kicker">How it works</p>
-            <h2 className="display text-3xl sm:text-[2.6rem] text-ink mt-2">Four steps, one photo</h2>
-          </div>
-          <p className="text-sm text-muted max-w-md leading-relaxed">
-            One photo goes through detection, classification and the disposal rules engine in a single request.
-          </p>
-        </div>
-
-        <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {STEPS.map((step, idx) => (
-            <li key={step.title} className="cred-card p-6 sm:p-7">
-              <span className="text-4xl font-medium text-lavender leading-none">0{idx + 1}</span>
-              <h3 className="mt-6 text-lg font-semibold uppercase tracking-[0.08em] text-ink">{step.title}</h3>
-              <p className="text-sm text-muted mt-2 leading-relaxed">{step.body}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      {/* 4. DISPOSAL STREAMS */}
-      <section className="w-full">
-        <div className="mb-8">
-          <p className="kicker">Disposal streams</p>
-          <h2 className="display text-3xl sm:text-[2.6rem] text-ink mt-2">Six bins, no guesswork</h2>
-          <p className="text-sm text-muted mt-3 max-w-xl leading-relaxed">
-            Every result points to one of these streams, so you know exactly where an item should end up.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {STREAMS.map((stream) => (
-            <article key={stream.name} className="cred-card p-6 sm:p-7 flex flex-col">
-              <div className="flex items-center gap-3">
-                <span className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: `${stream.color}22` }}>
-                  <span className="w-3 h-3 rounded-full" style={{ backgroundColor: stream.color }} />
-                </span>
-                <h3 className="text-lg font-semibold uppercase tracking-[0.06em] text-ink">{stream.name}</h3>
+            <dl className="grid grid-cols-2 gap-4 mt-5 text-sm">
+              <div>
+                <dt className="text-muted">Stream</dt>
+                <dd className="font-medium text-ink mt-0.5">{selected.stream}</dd>
               </div>
-              <p className="text-sm text-muted mt-4 leading-relaxed flex-1">{stream.body}</p>
-              <div className="mt-6 pt-4 border-t border-ink/[0.08] flex items-center justify-between text-xs">
-                <span className="font-medium text-ink-soft uppercase tracking-[0.08em]">{stream.bin}</span>
-                <span className="text-muted">{stream.route}</span>
+              <div>
+                <dt className="text-muted">Result</dt>
+                <dd className="font-medium text-ink mt-0.5">{selected.disposal}</dd>
               </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      {/* 5. QUIZ */}
-      <section className="w-full">
-        <div className="cred-card p-6 sm:p-10">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pb-6 border-b border-ink/[0.08]">
-            <div>
-              <p className="kicker">Quick quiz</p>
-              <h2 className="text-2xl sm:text-3xl font-semibold text-ink mt-2">Can this go in the blue bin?</h2>
-            </div>
-            <p className="text-sm text-muted">
-              Question {quizIndex + 1} of {QUIZ_QUESTIONS.length}
+            </dl>
+            <p className="text-[15px] text-ink-soft leading-relaxed mt-5">{selected.why}</p>
+            <p className="text-[15px] text-ink-soft leading-relaxed mt-3">
+              <span className="font-medium text-ink">Before you bin it: </span>
+              {selected.preparation}
             </p>
           </div>
 
-          <p className="my-7 text-lg sm:text-xl font-medium text-ink">
-            &ldquo;{QUIZ_QUESTIONS[quizIndex].question}&rdquo;
-          </p>
+          <button
+            onMouseEnter={() => sound.playHover()}
+            onClick={startScanning}
+            className="cred-button-primary w-full mt-6 py-4 text-base"
+          >
+            Scan your own items
+          </button>
+        </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {QUIZ_QUESTIONS[quizIndex].options.map((opt, idx) => {
+        <div>
+          <h2 className="display text-2xl sm:text-3xl text-ink px-1">Disposal streams</h2>
+          <p className="text-[15px] text-muted mt-2 px-1 leading-relaxed">
+            Every result points to one of these six streams.
+          </p>
+          <ul className="flex flex-col gap-3 mt-6">
+            {STREAMS.map((stream) => {
+              const Icon = stream.icon;
+              return (
+                <li key={stream.name} className="flex items-center gap-4 rounded-3xl bg-surface border border-ink/[0.08] p-3 pr-5">
+                  <span className="w-16 h-16 shrink-0 rounded-2xl bg-paper-2 flex items-center justify-center text-ink">
+                    <Icon className="w-7 h-7" strokeWidth={1.75} />
+                  </span>
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-baseline gap-x-2">
+                      <h3 className="text-[17px] font-semibold text-ink">{stream.name}</h3>
+                      <span className="text-sm text-muted">{stream.bin}</span>
+                    </div>
+                    <p className="text-sm text-ink-soft leading-relaxed mt-0.5">{stream.body}</p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </section>
+
+      {/* Recent scans + challenge */}
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
+        <div className="cred-card p-6 sm:p-8">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="display text-2xl sm:text-3xl text-ink">Recent scans</h2>
+            {onOpenHistory && (
+              <button
+                onClick={() => {
+                  sound.playClick();
+                  onOpenHistory();
+                }}
+                className="cred-button-secondary px-4 py-2 text-sm"
+              >
+                View all
+              </button>
+            )}
+          </div>
+
+          {recent === null ? (
+            <p className="text-sm text-muted mt-6">Loading scans…</p>
+          ) : recent.length === 0 ? (
+            <p className="text-sm text-muted mt-6">No scans yet. Your results will show up here.</p>
+          ) : (
+            <ul className="flex flex-col gap-3 mt-6">
+              {recent.map((item) => {
+                const obj = item.objects[0];
+                return (
+                  <li key={item.id} className="flex items-center gap-4 rounded-2xl bg-paper-2 p-3 pr-4">
+                    <span className="w-12 h-12 rounded-full bg-lime/60 text-ink flex items-center justify-center shrink-0">
+                      <Leaf className="w-5 h-5" strokeWidth={1.75} />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-ink truncate">{obj?.label || item.primary_category}</p>
+                      <p className="text-sm text-muted truncate">
+                        {obj?.disposal_info.recommended_bin || item.primary_category}
+                      </p>
+                    </div>
+                    <span className="text-sm text-muted shrink-0">{timeAgo(item.created_at)}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+
+        <div className="cred-card p-6 sm:p-8">
+          <p className="kicker">Challenge {quizIndex + 1} of {QUIZ_QUESTIONS.length}</p>
+          <h2 className="display text-2xl sm:text-3xl text-ink mt-1">Can this go in the blue bin?</h2>
+          <p className="mt-5 text-lg text-ink">{question.question}</p>
+
+          <div className="flex flex-col gap-2.5 mt-5">
+            {question.options.map((opt, idx) => {
               const isSelected = selectedOption === idx;
               return (
                 <button
                   key={idx}
                   onMouseEnter={() => sound.playHover()}
                   onClick={() => {
-                    if (opt.correct) {
-                      sound.playSuccess();
-                    } else {
-                      sound.playClick(400);
-                    }
+                    if (opt.correct) sound.playSuccess();
+                    else sound.playClick(400);
                     setSelectedOption(idx);
                   }}
                   aria-pressed={isSelected}
-                  className={`p-4 rounded-2xl text-left transition-colors border-2 ${
+                  className={`flex items-center justify-between gap-3 px-5 py-4 rounded-2xl text-left text-[15px] font-medium transition-colors border-[1.5px] ${
                     isSelected
                       ? opt.correct
-                        ? 'bg-emerald-500/10 border-emerald-500'
-                        : 'bg-rose-500/10 border-rose-500'
-                      : 'bg-paper-2 border-transparent hover:border-ink/15'
+                        ? 'bg-lime/50 border-leaf text-ink'
+                        : 'bg-rose-500/10 border-rose-500/60 text-ink'
+                      : 'bg-paper-2 border-transparent text-ink hover:border-ink/25'
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs uppercase tracking-[0.1em] text-muted">Option {idx + 1}</span>
-                    {isSelected &&
-                      (opt.correct ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-700" />
-                      ) : (
-                        <XCircle className="w-4 h-4 text-rose-700" />
-                      ))}
-                  </div>
-                  <span className="text-[15px] font-medium text-ink block">{opt.label}</span>
+                  <span>{opt.label}</span>
+                  {isSelected &&
+                    (opt.correct ? (
+                      <CheckCircle2 className="w-5 h-5 text-moss shrink-0" />
+                    ) : (
+                      <XCircle className="w-5 h-5 text-rose-700 shrink-0" />
+                    ))}
                 </button>
               );
             })}
           </div>
 
           {selectedOption !== null && (
-            <p
-              className={`mt-6 p-4 rounded-2xl text-sm leading-relaxed ${
-                QUIZ_QUESTIONS[quizIndex].options[selectedOption].correct
-                  ? 'bg-emerald-500/10 text-emerald-800'
-                  : 'bg-rose-500/10 text-rose-700'
-              }`}
-              role="status"
-            >
-              <strong>{QUIZ_QUESTIONS[quizIndex].options[selectedOption].correct ? 'Correct. ' : 'Not quite. '}</strong>
-              {QUIZ_QUESTIONS[quizIndex].options[selectedOption].reason.replace(/^Correct\.\s*/, '')}
+            <p className="mt-4 text-[15px] text-ink-soft leading-relaxed" role="status">
+              <span className="font-medium text-ink">
+                {question.options[selectedOption].correct ? 'Correct. ' : 'Not quite. '}
+              </span>
+              {question.options[selectedOption].reason}
             </p>
           )}
 
-          <div className="mt-8 flex justify-end">
+          <div className="flex flex-wrap gap-3 mt-6">
             <button
               onMouseEnter={() => sound.playHover()}
               onClick={() => {
@@ -491,46 +402,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartScanning, onOpe
                 setSelectedOption(null);
                 setQuizIndex((prev) => (prev + 1) % QUIZ_QUESTIONS.length);
               }}
-              className="cred-button-secondary px-5 py-2.5 text-xs uppercase tracking-[0.1em] flex items-center gap-2"
+              className="cred-button-secondary px-5 py-3 text-[15px] flex items-center gap-2"
             >
-              <span>Next question</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. CLOSING CTA */}
-      <section className="relative w-full rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden bg-leaf text-on-leaf">
-        <svg
-          viewBox="0 0 1200 160"
-          preserveAspectRatio="none"
-          className="absolute bottom-0 left-0 w-full h-24 sm:h-32"
-          aria-hidden="true"
-        >
-          <path d="M0 110 C200 60 380 70 560 100 C760 135 960 70 1200 90 L1200 160 L0 160 Z" fill="var(--lime)" opacity="0.35" />
-          <path d="M0 140 C240 105 460 115 700 135 C900 150 1060 120 1200 125 L1200 160 L0 160 Z" fill="var(--lime)" opacity="0.5" />
-        </svg>
-
-        <div className="relative px-6 py-12 sm:px-12 sm:py-16 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-          <div className="max-w-xl">
-            <p className="text-[13px] uppercase tracking-[0.14em] opacity-80 flex items-center gap-2">
-              <Leaf className="w-4 h-4" /> Ready when you are
-            </p>
-            <h2 className="display text-3xl sm:text-5xl mt-3">Stop guessing, start sorting</h2>
-            <p className="mt-4 text-[15px] opacity-90 leading-relaxed">
-              No sign-up needed. Drop in a photo or open your camera and get a bin recommendation in seconds.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-3 shrink-0 pb-6 lg:pb-0">
-            <button
-              onMouseEnter={() => sound.playHover()}
-              onClick={startScanning}
-              className="px-7 py-3.5 rounded-full bg-paper text-ink text-[13px] font-semibold uppercase tracking-[0.06em] flex items-center gap-2 hover:bg-surface transition-colors"
-            >
-              <Camera className="w-4 h-4" />
-              <span>Open the scanner</span>
+              Next question
+              <ChevronRight className="w-4 h-4" />
             </button>
             {onOpenImpact && (
               <button
@@ -539,9 +414,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartScanning, onOpe
                   sound.playClick();
                   onOpenImpact();
                 }}
-                className="px-7 py-3.5 rounded-full border-[1.5px] border-current text-[13px] font-semibold uppercase tracking-[0.06em] hover:bg-black/10 transition-colors"
+                className="cred-button-primary px-5 py-3 text-[15px] flex items-center gap-2"
               >
                 Estimate your eco-impact
+                <ArrowRight className="w-4 h-4" />
               </button>
             )}
           </div>

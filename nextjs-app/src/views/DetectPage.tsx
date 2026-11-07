@@ -147,7 +147,7 @@ export const DetectPage: React.FC = () => {
           </label>
 
           {prediction && (
-            <button onClick={resetDetection} className="cred-button-secondary px-4 py-1.5 text-xs uppercase tracking-[0.08em] flex items-center gap-1.5">
+            <button onClick={resetDetection} className="cred-button-secondary px-4 py-1.5 text-xs flex items-center gap-1.5">
               <RefreshCw className="w-3.5 h-3.5" />
               <span>New scan</span>
             </button>
@@ -195,7 +195,7 @@ export const DetectPage: React.FC = () => {
             <div className="flex flex-col gap-5" aria-live="polite">
               {/* Summary */}
               <div className="rounded-3xl bg-blush p-6 sm:p-7 flex flex-col gap-5">
-                <div className="flex items-center justify-between text-xs uppercase tracking-[0.12em]">
+                <div className="flex items-center justify-between text-xs">
                   <span className="text-lavender-deep font-medium">
                     {activeMode === 'camera' && !prediction ? 'Live result' : 'Main result'}
                   </span>
@@ -211,17 +211,17 @@ export const DetectPage: React.FC = () => {
 
                 <dl className="grid grid-cols-3 gap-3 pt-4 border-t border-ink/[0.1]">
                   <div>
-                    <dt className="text-[11px] uppercase tracking-[0.1em] text-ink-soft">Confidence</dt>
+                    <dt className="text-[11px] text-ink-soft">Confidence</dt>
                     <dd className="text-2xl font-medium text-ink mt-0.5">
                       {Math.round(currentDisplayPrediction.average_confidence * 100)}%
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-[11px] uppercase tracking-[0.1em] text-ink-soft">Objects</dt>
+                    <dt className="text-[11px] text-ink-soft">Objects</dt>
                     <dd className="text-2xl font-medium text-ink mt-0.5">{currentDisplayPrediction.total_objects}</dd>
                   </div>
                   <div>
-                    <dt className="text-[11px] uppercase tracking-[0.1em] text-ink-soft">Status</dt>
+                    <dt className="text-[11px] text-ink-soft">Status</dt>
                     <dd className="text-sm font-semibold text-moss flex items-center gap-1 mt-2">
                       <CheckCircle2 className="w-4 h-4" />
                       Sorted
@@ -244,7 +244,7 @@ export const DetectPage: React.FC = () => {
               )}
 
               <div className="flex flex-col gap-3">
-                <h3 className="text-xs uppercase tracking-[0.12em] text-muted px-1">
+                <h3 className="text-xs text-muted px-1">
                   What to do with each item ({currentDisplayPrediction.objects.length})
                 </h3>
                 {currentDisplayPrediction.objects.map((obj) => (

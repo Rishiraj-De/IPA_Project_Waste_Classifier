@@ -43,13 +43,13 @@ export const BoundingBoxOverlay: React.FC<BoundingBoxOverlayProps> = ({
   return (
     <div className="flex flex-col gap-3 w-full">
       {/* Visual Controls Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-paper-2 border border-ink/[0.08] text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-2xl bg-paper-2 text-xs">
         
         {/* View Mode Selector */}
-        <div className="flex items-center gap-1 bg-paper-2 p-1 rounded-lg border border-ink/[0.08]">
+        <div className="flex flex-wrap items-center gap-1 bg-surface p-1 rounded-xl">
           <button
             onClick={() => setViewMode('interactive')}
-            className={`px-2.5 py-1 rounded-md font-medium transition-all ${
+            className={`px-2.5 py-1 rounded-lg font-medium whitespace-nowrap transition-all ${
               viewMode === 'interactive' 
                 ? 'bg-ink text-paper shadow-sm' 
                 : 'text-muted hover:text-ink-soft'
@@ -59,7 +59,7 @@ export const BoundingBoxOverlay: React.FC<BoundingBoxOverlayProps> = ({
           </button>
           <button
             onClick={() => setViewMode('annotated')}
-            className={`px-2.5 py-1 rounded-md font-medium transition-all ${
+            className={`px-2.5 py-1 rounded-lg font-medium whitespace-nowrap transition-all ${
               viewMode === 'annotated' 
                 ? 'bg-ink text-paper shadow-sm' 
                 : 'text-muted hover:text-ink-soft'
@@ -69,7 +69,7 @@ export const BoundingBoxOverlay: React.FC<BoundingBoxOverlayProps> = ({
           </button>
           <button
             onClick={() => setViewMode('original')}
-            className={`px-2.5 py-1 rounded-md font-medium transition-all ${
+            className={`px-2.5 py-1 rounded-lg font-medium whitespace-nowrap transition-all ${
               viewMode === 'original' 
                 ? 'bg-ink text-paper shadow-sm' 
                 : 'text-muted hover:text-ink-soft'
@@ -81,7 +81,7 @@ export const BoundingBoxOverlay: React.FC<BoundingBoxOverlayProps> = ({
 
         {/* Feature Toggles */}
         {viewMode === 'interactive' && (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setShowBoxes(!showBoxes)}
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-medium transition-all ${
@@ -139,7 +139,7 @@ export const BoundingBoxOverlay: React.FC<BoundingBoxOverlayProps> = ({
       </div>
 
       {/* Main Image Viewport with Detection Overlay */}
-      <div className="relative w-full rounded-2xl overflow-hidden bg-paper-2 border border-ink/[0.08] flex items-center justify-center min-h-[360px] max-h-[580px] p-2">
+      <div className="relative w-full rounded-2xl overflow-hidden bg-paper-2 border border-ink/[0.08] flex items-center justify-center min-h-[220px] sm:min-h-[360px] max-h-[580px] p-2">
         {displayImage ? (
           <div className="relative inline-flex items-center justify-center max-w-full max-h-[560px]">
             <img

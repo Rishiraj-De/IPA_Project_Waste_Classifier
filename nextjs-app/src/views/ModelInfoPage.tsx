@@ -37,7 +37,7 @@ export const ModelInfoPage: React.FC<ModelInfoPageProps> = ({ systemHealth }) =>
       <div className="flex flex-wrap items-end justify-between gap-6 pb-6 border-b border-ink/[0.08]">
         <div>
           <span className="kicker block mb-1">
-            ARCHITECTURE & BENCHMARK
+            How the model works
           </span>
           <h1 className="display text-4xl sm:text-[3.4rem] text-ink mt-1">
             Vision Pipeline & ML Architecture

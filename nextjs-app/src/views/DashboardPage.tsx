@@ -112,7 +112,7 @@ export const DashboardPage: React.FC = () => {
       <div className="flex flex-wrap items-end justify-between gap-6 pb-6 border-b border-ink/[0.08] text-left">
         <div>
           <span className="kicker block mb-1">
-            PORTFOLIO INTELLIGENCE
+            Insights
           </span>
           <h1 className="display text-4xl sm:text-[3.4rem] text-ink mt-1">
             Your Waste Profile
@@ -132,7 +132,7 @@ export const DashboardPage: React.FC = () => {
           className="cred-button-secondary px-5 py-2.5 text-xs tabular-nums font-bold flex items-center gap-2"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-          <span>REFRESH LEDGER</span>
+          <span>Refresh</span>
         </button>
       </div>
 
@@ -140,39 +140,35 @@ export const DashboardPage: React.FC = () => {
       {stats && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatsCard
-            title="TOTAL WASTE SCANNED"
-            value={`${stats.total_items_detected || 127} items`}
-            subtitle={`${stats.total_scans || 58} diagnostic sessions executed`}
+            title="Items scanned"
+            value={`${stats.total_items_detected ?? 0} items`}
+            subtitle={`${stats.total_scans ?? 0} scans so far`}
             icon={Activity}
-            colorHex="#10B981"
-            trend="+18% purity"
+            colorHex="#5F7B38"
           />
 
           <StatsCard
-            title="CORRECTLY SEGREGATED"
-            value={`${stats.recyclable_percentage || 94}%`}
-            subtitle="Verified zero-contamination rate"
+            title="Recyclable share"
+            value={`${stats.recyclable_percentage ?? 0}%`}
+            subtitle="Of all detected items"
             icon={ShieldCheck}
-            colorHex="#10B981"
-            trend="ELITE TIER"
+            colorHex="#5F7B38"
           />
 
           <StatsCard
-            title="RECYCLABLE IDENTIFIED"
-            value={`${((stats.recyclable_count || 48) * 0.38).toFixed(1)} kg`}
-            subtitle={`${stats.recyclable_count || 48} items routed to material recovery`}
+            title="Recyclables found"
+            value={`${((stats.recyclable_count ?? 0) * 0.38).toFixed(1)} kg`}
+            subtitle={`${stats.recyclable_count ?? 0} recyclable items (est. 0.38 kg each)`}
             icon={Recycle}
-            colorHex="#3B82F6"
-            trend="HIGH RECOVERY"
+            colorHex="#5F7B38"
           />
 
           <StatsCard
-            title="LANDFILL DIVERSION"
-            value={`${((stats.total_items_detected || 127) * 0.25).toFixed(1)} kg`}
-            subtitle="Direct avoidance of municipal landfilling"
+            title="Kept out of landfill"
+            value={`${((stats.total_items_detected ?? 0) * 0.25).toFixed(1)} kg`}
+            subtitle="Estimated at 0.25 kg per item"
             icon={Zap}
-            colorHex="#D4AF37"
-            trend="VERIFIED DIVERSION"
+            colorHex="#5F7B38"
           />
         </div>
       )}
@@ -184,7 +180,7 @@ export const DashboardPage: React.FC = () => {
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 pb-8 border-b border-ink/[0.08]">
             <div>
               <span className="kicker block mb-1">
-                VERIFIED CITIZEN SCORE
+                Your impact score
               </span>
               <div className="flex items-baseline gap-3 mt-1">
                 <span className="text-4xl sm:text-6xl font-semibold text-ink tabular-nums tracking-tighter">
@@ -421,7 +417,7 @@ export const DashboardPage: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
           <div>
             <span className="kicker block mb-1">
-              COLLECTIVE RECOVERY
+              Community
             </span>
             <h3 className="text-2xl sm:text-3xl font-semibold text-ink tracking-tight">
               Community Benchmarks

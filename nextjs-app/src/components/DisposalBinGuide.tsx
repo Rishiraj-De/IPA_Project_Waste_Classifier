@@ -91,7 +91,7 @@ export const DisposalBinGuide: React.FC = () => {
     <div className="flex flex-col gap-6 w-full text-left">
       <div>
         <span className="kicker block mb-1">
-          MUNICIPAL COLOR DIRECTIVES
+          Bin colours
         </span>
         <h3 className="text-2xl sm:text-3xl font-semibold text-ink tracking-tight">
           Standardized Segregation Protocols
