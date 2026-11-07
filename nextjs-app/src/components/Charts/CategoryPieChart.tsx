@@ -17,7 +17,7 @@ interface CategoryPieChartProps {
 export const CategoryPieChart: React.FC<CategoryPieChartProps> = ({ data }) => {
   if (!data || data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-500 text-xs">
+      <div className="flex items-center justify-center h-64 text-muted text-xs">
         No category distribution data available yet.
       </div>
     );
@@ -27,18 +27,18 @@ export const CategoryPieChart: React.FC<CategoryPieChartProps> = ({ data }) => {
     if (active && payload && payload.length) {
       const item = payload[0].payload;
       return (
-        <div className="p-3 rounded-xl bg-slate-950/95 border border-slate-800 shadow-2xl text-xs">
+        <div className="p-3 rounded-2xl bg-surface border border-ink/[0.08] shadow-lg text-xs">
           <div className="flex items-center gap-2 mb-1">
             <span
               className="w-2.5 h-2.5 rounded-full"
               style={{ backgroundColor: item.color }}
             />
-            <span className="font-bold text-white">{item.category}</span>
+            <span className="font-bold text-ink">{item.category}</span>
           </div>
-          <p className="text-slate-300">
-            Detected Count: <strong className="text-white">{item.count} items</strong>
+          <p className="text-ink-soft">
+            Detected Count: <strong className="text-ink">{item.count} items</strong>
           </p>
-          <p className="text-eco-400 font-semibold">{item.percentage}% of all waste</p>
+          <p className="text-emerald-700 font-semibold">{item.percentage}% of all waste</p>
         </div>
       );
     }
@@ -64,7 +64,7 @@ export const CategoryPieChart: React.FC<CategoryPieChartProps> = ({ data }) => {
               <Cell 
                 key={`cell-${index}`} 
                 fill={entry.color || '#3b82f6'} 
-                stroke="#0f172a" 
+                stroke="none" className="stroke-surface" 
                 strokeWidth={2} 
               />
             ))}
@@ -73,7 +73,7 @@ export const CategoryPieChart: React.FC<CategoryPieChartProps> = ({ data }) => {
           <Legend
             verticalAlign="bottom"
             height={36}
-            formatter={(value) => <span className="text-xs text-slate-300 font-medium">{value}</span>}
+            formatter={(value) => <span className="text-xs text-ink-soft font-medium">{value}</span>}
           />
         </PieChart>
       </ResponsiveContainer>

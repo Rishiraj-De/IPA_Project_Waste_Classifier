@@ -1,19 +1,6 @@
 'use client';
-import React, { useState } from 'react';
-import { 
-  Camera, 
-  BarChart3, 
-  History, 
-  Cpu, 
-  Home, 
-  Menu, 
-  X, 
-  ArrowUpRight,
-  ShieldCheck,
-  Sparkles,
-  Volume2,
-  VolumeX
-} from 'lucide-react';
+import React, { useState, useSyncExternalStore } from 'react';
+import { Menu, X, ArrowUpRight, Volume2, VolumeX, Moon, Sun, Recycle } from 'lucide-react';
 import { SystemHealth } from '../types';
 import { sound } from '../utils/audio';
 
@@ -23,9 +10,27 @@ interface NavbarProps {
   systemHealth: SystemHealth | null;
 }
 
+const navItems = [
+  { id: 'landing', label: 'Home' },
+  { id: 'detect', label: 'Scan' },
+  { id: 'dashboard', label: 'Insights' },
+  { id: 'impact', label: 'Impact' },
+  { id: 'history', label: 'History' },
+  { id: 'model', label: 'Model' },
+];
+
+// The theme lives on <html class="dark"> (set before paint by layout.tsx), so read it from there.
+const readIsDark = () => document.documentElement.classList.contains('dark');
+const subscribeToTheme = (onChange: () => void) => {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  return () => observer.disconnect();
+};
+
 export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, systemHealth }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(true);
+  const isDark = useSyncExternalStore(subscribeToTheme, readIsDark, () => false);
 
   const toggleAudio = () => {
     const next = !audioEnabled;
@@ -34,179 +39,155 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, systemH
     if (next) sound.playSuccess();
   };
 
-  const navItems = [
-    { id: 'landing', label: 'Overview' },
-    { id: 'detect', label: 'Scanner', badge: 'v8.4' },
-    { id: 'dashboard', label: 'Intelligence' },
-    { id: 'impact', label: 'Eco-Impact', badge: 'NEW' },
-    { id: 'history', label: 'Audit Log' },
-    { id: 'model', label: 'Architecture' },
-  ];
+  const toggleTheme = () => {
+    const next = !isDark;
+    document.documentElement.classList.toggle('dark', next);
+    try {
+      localStorage.setItem('theme', next ? 'dark' : 'light');
+    } catch {
+      // storage unavailable; theme still applies for this visit
+    }
+  };
+
+  const go = (id: string) => {
+    sound.playClick();
+    setActiveTab(id);
+    setMobileMenuOpen(false);
+  };
+
+  const healthy = systemHealth?.status === 'healthy';
+
+  const iconButton =
+    'w-10 h-10 rounded-full flex items-center justify-center text-muted hover:text-ink hover:bg-paper-2 transition-colors';
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-3xl bg-[#080808]/70 border-b border-white/[0.12] transition-all shadow-2xl">
+    <header className="sticky top-0 z-50 bg-paper/90 backdrop-blur-md border-b border-ink/[0.07]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          
-          {/* Minimal Brand Logo with Glass Icon */}
-          <div 
-            className="flex items-center gap-3 cursor-pointer group"
-            onClick={() => {
-              sound.playClick();
-              setActiveTab('landing');
-            }}
+        <div className="flex items-center justify-between h-18 py-3.5 gap-4">
+          {/* Brand */}
+          <button
+            className="flex items-center gap-2.5 group"
+            onClick={() => go('landing')}
+            aria-label="CLASSIFY.AI home"
           >
-            <div className="w-9 h-9 rounded-xl bg-white/[0.07] backdrop-blur-md border border-white/[0.16] flex items-center justify-center text-white shadow-inner group-hover:border-white/40 group-hover:scale-105 transition-all">
-              <span className="font-mono text-sm font-extrabold text-emerald-400">Ø</span>
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-black text-lg tracking-tight text-[#F5F5F0]">
-                  CLASSIFY<span className="text-emerald-400">.AI</span>
-                </span>
-              </div>
-              <p className="text-[10px] text-[#8C8C87] font-mono tracking-wider uppercase -mt-0.5">
-                Waste Intelligence
-              </p>
-            </div>
-          </div>
+            <span className="w-9 h-9 rounded-full bg-leaf text-on-leaf flex items-center justify-center">
+              <Recycle className="w-[18px] h-[18px]" strokeWidth={2.2} />
+            </span>
+            <span className="font-semibold text-[17px] tracking-[0.12em] text-ink uppercase">
+              Classify<span className="text-lavender">.ai</span>
+            </span>
+          </button>
 
-          {/* Frosted Glass Navigation Pill Container */}
-          <nav className="hidden md:flex items-center gap-1 bg-white/[0.04] border border-white/[0.1] p-1.5 rounded-full backdrop-blur-2xl shadow-xl">
+          {/* Desktop navigation */}
+          <nav className="hidden lg:flex items-center gap-1" aria-label="Main">
             {navItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
                 <button
                   key={item.id}
                   onMouseEnter={() => sound.playHover()}
-                  onClick={() => {
-                    sound.playClick();
-                    setActiveTab(item.id);
-                  }}
-                  className={`relative flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold tracking-tight transition-all duration-200 ${
-                    isActive
-                      ? 'text-black bg-[#F5F5F0] shadow-md font-bold'
-                      : 'text-[#8C8C87] hover:text-[#F5F5F0] hover:bg-white/[0.06]'
+                  onClick={() => go(item.id)}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`relative px-3.5 py-2 text-[13px] font-medium uppercase tracking-[0.12em] transition-colors ${
+                    isActive ? 'text-ink' : 'text-muted hover:text-ink'
                   }`}
                 >
                   {item.label}
-                  {item.badge && (
-                    <span className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-full ${
-                      isActive ? 'bg-emerald-600 text-white' : 'bg-white/[0.08] text-[#8C8C87]'
-                    }`}>
-                      {item.badge}
-                    </span>
-                  )}
+                  <span
+                    className={`absolute left-3.5 right-3.5 -bottom-0.5 h-[2px] rounded-full bg-lime transition-opacity ${
+                      isActive ? 'opacity-100' : 'opacity-0'
+                    }`}
+                  />
                 </button>
               );
             })}
           </nav>
 
-          {/* Right Action: Sound Toggle, Status Pill & Primary Scan CTA */}
-          <div className="hidden lg:flex items-center gap-3">
-            
-            {/* Audio Toggle */}
+          {/* Right side actions */}
+          <div className="flex items-center gap-1 sm:gap-1.5">
+            <span
+              className="hidden xl:flex items-center gap-2 mr-2 text-xs text-muted"
+              title={healthy ? 'Classifier is ready' : 'Connecting to the classifier'}
+            >
+              <span className={`w-2 h-2 rounded-full ${healthy ? 'bg-lime' : 'bg-amber-400'}`} />
+              {healthy ? 'Model ready' : 'Connecting…'}
+            </span>
+
             <button
               onClick={toggleAudio}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-mono backdrop-blur-xl transition-all ${
-                audioEnabled
-                  ? 'bg-emerald-500/[0.09] border-emerald-500/30 text-emerald-300 shadow-sm'
-                  : 'bg-white/[0.03] border-white/[0.08] text-[#525252]'
-              }`}
-              title={audioEnabled ? 'Futuristic SFX Audio Enabled' : 'SFX Audio Muted'}
+              className={`${iconButton} hidden sm:flex`}
+              title={audioEnabled ? 'Mute interface sounds' : 'Turn interface sounds on'}
+              aria-label={audioEnabled ? 'Mute interface sounds' : 'Turn interface sounds on'}
+              aria-pressed={audioEnabled}
             >
-              {audioEnabled ? (
-                <>
-                  <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="text-[10px] uppercase font-bold tracking-wider">SFX ON</span>
-                </>
-              ) : (
-                <>
-                  <VolumeX className="w-3.5 h-3.5 text-[#525252]" />
-                  <span className="text-[10px] uppercase font-bold tracking-wider">SFX OFF</span>
-                </>
-              )}
+              {audioEnabled ? <Volume2 className="w-[18px] h-[18px]" /> : <VolumeX className="w-[18px] h-[18px]" />}
             </button>
 
-            {/* Live Model Health Indicator */}
-            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] backdrop-blur-xl border border-white/[0.12] text-[11px] font-mono text-[#8C8C87] shadow-sm">
-              {systemHealth?.status === 'healthy' ? (
-                <>
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  <span className="text-[#A3A39E]">SYSTEM READY</span>
-                  <span className="text-[#525252] font-normal">| 40ms</span>
-                </>
-              ) : (
-                <>
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                  <span className="text-[#8C8C87]">INITIALIZING</span>
-                </>
-              )}
-            </div>
+            <button
+              onClick={toggleTheme}
+              className={iconButton}
+              title={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+              aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+            >
+              {isDark ? <Sun className="w-[18px] h-[18px]" /> : <Moon className="w-[18px] h-[18px]" />}
+            </button>
 
-            {/* Primary Action Button */}
             <button
               onMouseEnter={() => sound.playHover()}
               onClick={() => {
                 sound.playTargetLock();
                 setActiveTab('detect');
+                setMobileMenuOpen(false);
               }}
-              className="cred-button-primary px-5 py-2 text-xs flex items-center gap-1.5 uppercase tracking-wider font-extrabold"
+              className="hidden sm:flex cred-button-primary ml-1.5 px-5 py-2.5 text-xs uppercase items-center gap-1.5"
             >
-              <span>Scan Waste</span>
+              <span>Scan waste</span>
               <ArrowUpRight className="w-3.5 h-3.5" />
             </button>
-          </div>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center gap-2">
-            <button
-              onClick={() => setActiveTab('detect')}
-              className="cred-button-primary px-3.5 py-1.5 text-xs font-bold"
-            >
-              Scan
-            </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl text-[#8C8C87] hover:text-white bg-white/[0.04] border border-white/[0.08]"
+              className={`${iconButton} lg:hidden`}
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileMenuOpen}
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
-
         </div>
       </div>
 
-      {/* Mobile Dropdown Menu */}
+      {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden px-4 pt-3 pb-5 space-y-2 bg-[#0C0C0C] border-b border-white/[0.08] shadow-2xl">
+        <nav className="lg:hidden border-t border-ink/[0.07] bg-paper px-4 pt-2 pb-5" aria-label="Main">
           {navItems.map((item) => {
             const isActive = activeTab === item.id;
             return (
               <button
                 key={item.id}
-                onClick={() => {
-                  setActiveTab(item.id);
-                  setMobileMenuOpen(false);
-                }}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
-                  isActive
-                    ? 'text-black bg-[#F5F5F0] font-bold'
-                    : 'text-[#8C8C87] hover:text-white hover:bg-white/[0.04]'
+                onClick={() => go(item.id)}
+                aria-current={isActive ? 'page' : undefined}
+                className={`w-full flex items-center justify-between px-3 py-3 border-b border-ink/[0.06] text-sm uppercase tracking-[0.12em] ${
+                  isActive ? 'text-ink font-semibold' : 'text-muted'
                 }`}
               >
                 <span>{item.label}</span>
-                {item.badge && (
-                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
-                    isActive ? 'bg-emerald-600 text-white' : 'bg-white/[0.08] text-[#8C8C87]'
-                  }`}>
-                    {item.badge}
-                  </span>
-                )}
+                {isActive && <span className="w-2 h-2 rounded-full bg-lime" />}
               </button>
             );
           })}
-        </div>
+          <button
+            onClick={() => {
+              sound.playTargetLock();
+              setActiveTab('detect');
+              setMobileMenuOpen(false);
+            }}
+            className="sm:hidden cred-button-primary w-full mt-4 px-5 py-3 text-xs uppercase flex items-center justify-center gap-1.5"
+          >
+            <span>Scan waste</span>
+            <ArrowUpRight className="w-3.5 h-3.5" />
+          </button>
+        </nav>
       )}
     </header>
   );
