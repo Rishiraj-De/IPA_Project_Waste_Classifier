@@ -129,7 +129,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         className={`relative flex flex-col items-center justify-center p-8 sm:p-14 rounded-2xl border-2 border-dashed transition-all duration-200 cursor-pointer text-center group ${
           isDragOver
             ? 'border-emerald-400 bg-emerald-500/[0.04] scale-[1.01]'
-            : 'border-white/[0.1] hover:border-white/30 bg-[#0A0A0A] hover:bg-white/[0.02]'
+            : 'border-ink/[0.1] hover:border-ink/30 bg-paper-2 hover:bg-ink/[0.02]'
         }`}
       >
         <input
@@ -141,56 +141,56 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
           disabled={isLoading}
         />
 
-        <div className="w-14 h-14 rounded-2xl bg-white/[0.04] border border-white/[0.1] flex items-center justify-center mb-4 group-hover:scale-110 group-hover:border-white/30 transition-all">
-          <Upload className="w-6 h-6 text-white" />
+        <div className="w-14 h-14 rounded-2xl bg-ink/[0.04] border border-ink/[0.1] flex items-center justify-center mb-4 group-hover:scale-110 group-hover:border-ink/30 transition-all">
+          <Upload className="w-6 h-6 text-ink" />
         </div>
 
-        <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-emerald-400 transition-colors tracking-tight">
+        <h3 className="text-base sm:text-lg font-bold text-ink group-hover:text-emerald-700 transition-colors tracking-tight">
           Select photograph or drop file to analyze
         </h3>
-        <p className="text-xs text-[#8C8C87] mt-1.5 max-w-sm font-normal">
+        <p className="text-xs text-muted mt-1.5 max-w-sm font-normal">
           Accepts JPG, PNG, WEBP (up to 15MB). Automated YOLOv8 vision isolates bounds & routes to designated bin.
         </p>
 
         {/* Minimal Monospace Badges */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mt-5 font-mono">
-          <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-white/[0.04] text-[#CCCCCC] border border-white/[0.08]">
+        <div className="flex flex-wrap items-center justify-center gap-2 mt-5 tabular-nums">
+          <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-ink/[0.04] text-ink-soft border border-ink/[0.08]">
             YOLOv8 VISION
           </span>
-          <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-white/[0.04] text-[#CCCCCC] border border-white/[0.08]">
+          <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-ink/[0.04] text-ink-soft border border-ink/[0.08]">
             &lt; 40MS LATENCY
           </span>
-          <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-emerald-500/[0.08] text-emerald-400 border border-emerald-500/20">
+          <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-emerald-500/[0.08] text-emerald-700 border border-emerald-500/20">
             ZERO RETENTION
           </span>
         </div>
 
         {/* Loading Overlay */}
         {isLoading && (
-          <div className="absolute inset-0 rounded-2xl bg-black/90 backdrop-blur-md flex flex-col items-center justify-center gap-3">
-            <RefreshCw className="w-8 h-8 text-emerald-400 animate-spin" />
-            <p className="text-sm font-bold text-white font-mono tracking-wider uppercase">Executing Neural Inference...</p>
-            <p className="text-xs text-[#8C8C87] font-mono">Classifying material structure & municipal rules</p>
+          <div className="absolute inset-0 rounded-2xl bg-paper/90 flex flex-col items-center justify-center gap-3">
+            <RefreshCw className="w-8 h-8 text-emerald-700 animate-spin" />
+            <p className="text-sm font-bold text-ink tabular-nums tracking-wider uppercase">Executing Neural Inference...</p>
+            <p className="text-xs text-muted tabular-nums">Classifying material structure & municipal rules</p>
           </div>
         )}
       </div>
 
       {/* Error Banner */}
       {error && (
-        <div className="flex items-center gap-3 p-4 rounded-xl bg-rose-500/[0.08] border border-rose-500/20 text-rose-300 text-xs font-mono">
-          <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-400" />
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-rose-500/[0.08] border border-rose-500/20 text-rose-700 text-xs tabular-nums">
+          <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-700" />
           <span>{error}</span>
         </div>
       )}
 
       {/* Quick Test Presets */}
       <div className="flex flex-col gap-3 text-left">
-        <div className="flex items-center justify-between font-mono">
-          <span className="text-xs font-bold uppercase tracking-widest text-[#8C8C87] flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+        <div className="flex items-center justify-between tabular-nums">
+          <span className="text-xs font-bold uppercase tracking-widest text-muted flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-700" />
             ONE-CLICK TEST ARTIFACTS
           </span>
-          <span className="text-[10px] text-[#525252]">CLICK TO INFER</span>
+          <span className="text-[10px] text-subtle">CLICK TO INFER</span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
@@ -200,17 +200,17 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
               onMouseEnter={() => sound.playHover()}
               onClick={() => loadPreset(preset)}
               disabled={isLoading}
-              className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/[0.06] hover:border-white/20 text-left transition-all duration-200 group"
+              className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-ink/[0.02] hover:bg-ink/[0.06] border border-ink/[0.06] hover:border-ink/20 text-left transition-all duration-200 group"
             >
               <span
                 className="w-2 h-2 rounded-full flex-shrink-0 group-hover:scale-125 transition-transform"
                 style={{ backgroundColor: preset.color }}
               />
               <div className="truncate">
-                <p className="text-xs font-bold text-white group-hover:text-emerald-400 truncate tracking-tight">
+                <p className="text-xs font-bold text-ink group-hover:text-emerald-700 truncate tracking-tight">
                   {preset.name}
                 </p>
-                <p className="text-[10px] font-mono text-[#8C8C87] uppercase">{preset.category}</p>
+                <p className="text-[10px] tabular-nums text-muted uppercase">{preset.category}</p>
               </div>
             </button>
           ))}

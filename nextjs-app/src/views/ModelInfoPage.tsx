@@ -31,28 +31,28 @@ export const ModelInfoPage: React.FC<ModelInfoPageProps> = ({ systemHealth }) =>
   const isFineTuned = systemHealth?.model.mode === 'custom_fine_tuned';
 
   return (
-    <div className="flex flex-col gap-12 pb-20 text-left text-[#F5F5F0]">
+    <div className="flex flex-col gap-12 pb-20 text-left text-ink">
       
       {/* Header */}
-      <div className="flex flex-wrap items-end justify-between gap-6 pb-6 border-b border-white/[0.08]">
+      <div className="flex flex-wrap items-end justify-between gap-6 pb-6 border-b border-ink/[0.08]">
         <div>
-          <span className="text-xs font-mono uppercase tracking-widest text-emerald-400 block mb-1">
-            [ ARCHITECTURE & BENCHMARK ]
+          <span className="kicker block mb-1">
+            ARCHITECTURE & BENCHMARK
           </span>
-          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
+          <h1 className="display text-4xl sm:text-[3.4rem] text-ink mt-1">
             Vision Pipeline & ML Architecture
-          </h2>
-          <p className="text-xs sm:text-sm text-[#8C8C87] mt-1 font-normal">
+          </h1>
+          <p className="text-xs sm:text-sm text-muted mt-1 font-normal">
             Neural network backbone, multi-scale feature pyramids, transfer learning strategy, and empirical mAP benchmarks.
           </p>
         </div>
 
         {/* Runtime Model Status Pill */}
-        <div className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] font-mono">
-          <Cpu className="w-4 h-4 text-emerald-400" />
+        <div className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-ink/[0.03] border border-ink/[0.08] tabular-nums">
+          <Cpu className="w-4 h-4 text-emerald-700" />
           <div className="text-right">
-            <span className="text-[10px] uppercase font-bold text-[#525252] block">ACTIVE BACKBONE</span>
-            <span className="text-xs font-bold text-white">
+            <span className="text-[10px] uppercase font-bold text-subtle block">ACTIVE BACKBONE</span>
+            <span className="text-xs font-bold text-ink">
               {isFineTuned ? 'YOLOv8 Custom Fine-Tuned' : 'YOLOv8 Semantic Mapped'}
             </span>
           </div>
@@ -60,17 +60,17 @@ export const ModelInfoPage: React.FC<ModelInfoPageProps> = ({ systemHealth }) =>
       </div>
 
       {/* Model Strategy Banner */}
-      <div className="cred-card p-6 flex items-start gap-4 border border-white/[0.12]">
-        <Info className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
-        <div className="text-xs text-[#CCCCCC] space-y-2">
-          <strong className="text-white text-sm block font-bold">Academic Integrity & Model Transparency Strategy</strong>
+      <div className="cred-card p-6 flex items-start gap-4 border border-ink/[0.12]">
+        <Info className="w-5 h-5 text-emerald-700 flex-shrink-0 mt-0.5" />
+        <div className="text-xs text-ink-soft space-y-2">
+          <strong className="text-ink text-sm block font-bold">Academic Integrity & Model Transparency Strategy</strong>
           <p className="leading-relaxed">
             The system adheres strictly to honest academic integrity: it clearly distinguishes between 
             the <strong>pretrained YOLOv8 backbone with semantic COCO waste mapping</strong> and 
             the <strong>locally fine-tuned custom waste weights</strong>.
           </p>
-          <p className="text-[#8C8C87] font-mono text-[11px]">
-            If custom weights (<code className="text-emerald-400 bg-emerald-500/[0.08] px-1.5 py-0.5 rounded">ml/models/waste_yolov8_best.pt</code>) are generated via the local training pipeline, 
+          <p className="text-muted tabular-nums text-[11px]">
+            If custom weights (<code className="text-emerald-700 bg-emerald-500/[0.08] px-1.5 py-0.5 rounded">ml/models/waste_yolov8_best.pt</code>) are generated via the local training pipeline, 
             the inference engine automatically loads them. Otherwise, it operates via the pretrained YOLOv8 backbone mapping 80 physical objects to 
             the 9 waste categories.
           </p>
@@ -79,8 +79,8 @@ export const ModelInfoPage: React.FC<ModelInfoPageProps> = ({ systemHealth }) =>
 
       {/* Architecture Pipeline Visual Flow */}
       <section className="flex flex-col gap-4">
-        <h3 className="text-lg font-bold text-white flex items-center gap-2">
-          <Layers className="w-4 h-4 text-emerald-400" />
+        <h3 className="text-lg font-bold text-ink flex items-center gap-2">
+          <Layers className="w-4 h-4 text-emerald-700" />
           <span>Deep Vision Pipeline Flow</span>
         </h3>
 
@@ -122,11 +122,11 @@ export const ModelInfoPage: React.FC<ModelInfoPageProps> = ({ systemHealth }) =>
               className="cred-card p-5 flex flex-col justify-between text-left"
             >
               <div>
-                <span className="text-[10px] font-mono font-bold text-emerald-400 mb-2 block">{item.phase}</span>
-                <h4 className="text-sm font-bold text-white mb-1.5">{item.name}</h4>
-                <p className="text-xs text-[#8C8C87] leading-relaxed">{item.desc}</p>
+                <span className="text-[10px] tabular-nums font-bold text-emerald-700 mb-2 block">{item.phase}</span>
+                <h4 className="text-sm font-bold text-ink mb-1.5">{item.name}</h4>
+                <p className="text-xs text-muted leading-relaxed">{item.desc}</p>
               </div>
-              <span className="text-[10px] text-[#CCCCCC] font-mono mt-4 pt-3 border-t border-white/[0.06]">
+              <span className="text-[10px] text-ink-soft tabular-nums mt-4 pt-3 border-t border-ink/[0.06]">
                 {item.sub}
               </span>
             </div>
@@ -137,15 +137,15 @@ export const ModelInfoPage: React.FC<ModelInfoPageProps> = ({ systemHealth }) =>
       {/* Benchmark Performance Table */}
       <section className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            <BarChart3 className="w-4 h-4 text-emerald-400" />
+          <h3 className="text-lg font-bold text-ink flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-emerald-700" />
             <span>Empirical Evaluation Benchmarks</span>
           </h3>
-          <div className="flex items-center gap-2 font-mono text-xs">
+          <div className="flex items-center gap-2 tabular-nums text-xs">
             <span className="px-3 py-1 rounded-full cred-badge-emerald font-bold">
               mAP@50: 87.1%
             </span>
-            <span className="px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-[#CCCCCC] font-bold">
+            <span className="px-3 py-1 rounded-full bg-ink/[0.04] border border-ink/[0.08] text-ink-soft font-bold">
               mAP@50-95: 64.4%
             </span>
           </div>
@@ -153,8 +153,8 @@ export const ModelInfoPage: React.FC<ModelInfoPageProps> = ({ systemHealth }) =>
 
         <div className="cred-card overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-[#CCCCCC]">
-              <thead className="bg-[#0A0A0A] border-b border-white/[0.08] text-[10px] font-mono font-bold uppercase tracking-wider text-[#8C8C87]">
+            <table className="w-full text-left text-xs text-ink-soft">
+              <thead className="bg-paper-2 border-b border-ink/[0.08] text-[10px] tabular-nums font-bold uppercase tracking-wider text-muted">
                 <tr>
                   <th className="py-3 px-4">WASTE STREAM</th>
                   <th className="py-3 px-4">DESIGNATED RECEPTACLE</th>
@@ -164,14 +164,14 @@ export const ModelInfoPage: React.FC<ModelInfoPageProps> = ({ systemHealth }) =>
                   <th className="py-3 px-4">GRADE</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.04] font-mono">
+              <tbody className="divide-y divide-ink/[0.04] tabular-nums">
                 {EVALUATION_BENCHMARK.map((row) => (
-                  <tr key={row.category} className="hover:bg-white/[0.02]">
-                    <td className="py-3 px-4 font-sans font-bold text-white">{row.category}</td>
-                    <td className="py-3 px-4 text-[#8C8C87]">{row.bin}</td>
-                    <td className="py-3 px-4 text-white">{(row.precision * 100).toFixed(1)}%</td>
-                    <td className="py-3 px-4 text-white">{(row.recall * 100).toFixed(1)}%</td>
-                    <td className="py-3 px-4 font-bold text-emerald-400">{(row.f1 * 100).toFixed(1)}%</td>
+                  <tr key={row.category} className="hover:bg-ink/[0.02]">
+                    <td className="py-3 px-4 font-sans font-bold text-ink">{row.category}</td>
+                    <td className="py-3 px-4 text-muted">{row.bin}</td>
+                    <td className="py-3 px-4 text-ink">{(row.precision * 100).toFixed(1)}%</td>
+                    <td className="py-3 px-4 text-ink">{(row.recall * 100).toFixed(1)}%</td>
+                    <td className="py-3 px-4 font-bold text-emerald-700">{(row.f1 * 100).toFixed(1)}%</td>
                     <td className="py-3 px-4">
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full cred-badge-emerald">
                         {row.f1 >= 0.90 ? 'GRADE A' : 'GRADE B+'}
@@ -187,30 +187,30 @@ export const ModelInfoPage: React.FC<ModelInfoPageProps> = ({ systemHealth }) =>
 
       {/* CLI & Local Fine-Tuning Execution Guide */}
       <section className="flex flex-col gap-4">
-        <h3 className="text-lg font-bold text-white flex items-center gap-2">
-          <Terminal className="w-4 h-4 text-emerald-400" />
+        <h3 className="text-lg font-bold text-ink flex items-center gap-2">
+          <Terminal className="w-4 h-4 text-emerald-700" />
           <span>Local Model Training & Inference CLI</span>
         </h3>
 
-        <div className="cred-card p-6 font-mono text-xs text-[#CCCCCC] space-y-4">
+        <div className="cred-card p-6 font-mono text-xs text-ink-soft space-y-4 overflow-x-auto">
           <div>
-            <span className="text-[#525252] block mb-1"># 1. Generate annotated YOLO format sample dataset</span>
-            <span className="text-emerald-400">python ml/dataset/prepare_sample_dataset.py --samples 20</span>
+            <span className="text-subtle block mb-1"># 1. Generate annotated YOLO format sample dataset</span>
+            <span className="text-emerald-700">python ml/dataset/prepare_sample_dataset.py --samples 20</span>
           </div>
 
           <div>
-            <span className="text-[#525252] block mb-1"># 2. Fine-tune YOLOv8 on custom waste dataset</span>
-            <span className="text-emerald-400">python ml/training/train.py --epochs 15 --batch 8 --imgsz 640</span>
+            <span className="text-subtle block mb-1"># 2. Fine-tune YOLOv8 on custom waste dataset</span>
+            <span className="text-emerald-700">python ml/training/train.py --epochs 15 --batch 8 --imgsz 640</span>
           </div>
 
           <div>
-            <span className="text-[#525252] block mb-1"># 3. Generate confusion matrix and F1-score evaluation report</span>
-            <span className="text-emerald-400">python ml/evaluation/evaluate.py</span>
+            <span className="text-subtle block mb-1"># 3. Generate confusion matrix and F1-score evaluation report</span>
+            <span className="text-emerald-700">python ml/evaluation/evaluate.py</span>
           </div>
 
           <div>
-            <span className="text-[#525252] block mb-1"># 4. Run CLI inference test on any physical test image</span>
-            <span className="text-emerald-400">python ml/inference/infer.py --source ./sample_bottle.jpg --conf 0.45</span>
+            <span className="text-subtle block mb-1"># 4. Run CLI inference test on any physical test image</span>
+            <span className="text-emerald-700">python ml/inference/infer.py --source ./sample_bottle.jpg --conf 0.45</span>
           </div>
         </div>
       </section>

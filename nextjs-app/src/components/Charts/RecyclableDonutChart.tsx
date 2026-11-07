@@ -12,8 +12,8 @@ export const RecyclableDonutChart: React.FC<RecyclableDonutChartProps> = ({
   nonRecyclableCount,
 }) => {
   const data = [
-    { name: 'Recyclable / Compostable', value: recyclableCount, color: '#22c55e' },
-    { name: 'Non-Recyclable / Landfill', value: nonRecyclableCount, color: '#64748b' },
+    { name: 'Recyclable / Compostable', value: recyclableCount, color: '#7eaa2b' },
+    { name: 'Non-Recyclable / Landfill', value: nonRecyclableCount, color: '#a39bab' },
   ];
 
   const total = recyclableCount + nonRecyclableCount;
@@ -24,16 +24,16 @@ export const RecyclableDonutChart: React.FC<RecyclableDonutChartProps> = ({
       const item = payload[0];
       const pct = total > 0 ? Math.round((item.value / total) * 100) : 0;
       return (
-        <div className="p-3 rounded-xl bg-slate-950/95 border border-slate-800 shadow-2xl text-xs">
+        <div className="p-3 rounded-2xl bg-surface border border-ink/[0.08] shadow-lg text-xs">
           <div className="flex items-center gap-2 mb-1">
             <span
               className="w-2.5 h-2.5 rounded-full"
               style={{ backgroundColor: item.payload.color }}
             />
-            <span className="font-bold text-white">{item.name}</span>
+            <span className="font-bold text-ink">{item.name}</span>
           </div>
-          <p className="text-slate-300">
-            Count: <strong className="text-white">{item.value} items</strong> ({pct}%)
+          <p className="text-ink-soft">
+            Count: <strong className="text-ink">{item.value} items</strong> ({pct}%)
           </p>
         </div>
       );
@@ -56,22 +56,22 @@ export const RecyclableDonutChart: React.FC<RecyclableDonutChartProps> = ({
             paddingAngle={5}
           >
             {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} stroke="#0f172a" strokeWidth={2} />
+              <Cell key={`cell-${index}`} fill={entry.color} stroke="none" className="stroke-surface" strokeWidth={2} />
             ))}
           </Pie>
           <Tooltip content={<CustomTooltip />} />
           <Legend
             verticalAlign="bottom"
             height={36}
-            formatter={(value) => <span className="text-xs text-slate-300 font-medium">{value}</span>}
+            formatter={(value) => <span className="text-xs text-ink-soft font-medium">{value}</span>}
           />
         </PieChart>
       </ResponsiveContainer>
 
       {/* Center Percentage Display */}
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none -mt-8">
-        <span className="text-2xl font-black text-white">{pctRecyclable}%</span>
-        <span className="text-[10px] uppercase font-semibold text-slate-400">Recyclable</span>
+        <span className="text-2xl font-semibold text-ink">{pctRecyclable}%</span>
+        <span className="text-[10px] uppercase font-semibold text-muted">Recyclable</span>
       </div>
     </div>
   );

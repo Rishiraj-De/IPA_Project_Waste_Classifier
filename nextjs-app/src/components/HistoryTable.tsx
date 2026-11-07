@@ -138,23 +138,23 @@ export const HistoryTable: React.FC = () => {
     <div className="flex flex-col gap-6 w-full text-left font-sans">
       
       {/* Search & Filter Toolbar */}
-      <div className="cred-card p-4 flex flex-wrap items-center justify-between gap-4 font-mono text-xs">
+      <div className="cred-card p-4 flex flex-wrap items-center justify-between gap-4 tabular-nums text-xs">
         
         {/* Search Bar */}
         <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 flex-1 min-w-[260px]">
           <div className="relative w-full">
-            <Search className="w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8C8C87]" />
+            <Search className="w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="SEARCH BY OBJECT, LABEL, OR BIN RECEPTACLE..."
-              className="w-full pl-9 pr-4 py-2 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white placeholder-[#525252] text-xs focus:outline-none focus:border-white/30"
+              className="w-full pl-9 pr-4 py-2 rounded-xl bg-ink/[0.03] border border-ink/[0.08] text-ink placeholder:text-subtle text-xs focus:outline-none focus:border-ink/30"
             />
           </div>
           <button
             type="submit"
-            className="cred-button-primary px-4 py-2 text-[11px] font-black uppercase tracking-wider"
+            className="cred-button-primary px-4 py-2 text-[11px] font-semibold uppercase tracking-wider"
           >
             Search
           </button>
@@ -170,7 +170,7 @@ export const HistoryTable: React.FC = () => {
               setCategory(e.target.value);
               setPage(1);
             }}
-            className="px-3 py-2 rounded-xl bg-[#0D0D0D] border border-white/[0.08] text-[#CCCCCC] text-xs focus:outline-none focus:border-white/30 cursor-pointer"
+            className="px-3 py-2 rounded-xl bg-paper-2 border border-ink/[0.08] text-ink-soft text-xs focus:outline-none focus:border-ink/30 cursor-pointer"
           >
             {CATEGORIES.map((cat) => (
               <option key={cat} value={cat}>
@@ -186,7 +186,7 @@ export const HistoryTable: React.FC = () => {
               setRecyclableFilter(e.target.value);
               setPage(1);
             }}
-            className="px-3 py-2 rounded-xl bg-[#0D0D0D] border border-white/[0.08] text-[#CCCCCC] text-xs focus:outline-none focus:border-white/30 cursor-pointer"
+            className="px-3 py-2 rounded-xl bg-paper-2 border border-ink/[0.08] text-ink-soft text-xs focus:outline-none focus:border-ink/30 cursor-pointer"
           >
             <option value="all">RECYCLABLE: ALL</option>
             <option value="yes">RECYCLABLE ONLY</option>
@@ -196,26 +196,26 @@ export const HistoryTable: React.FC = () => {
           {/* Sort Order */}
           <button
             onClick={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
-            className="cred-button-secondary px-3 py-2 text-[11px] font-mono flex items-center gap-1.5"
+            className="cred-button-secondary px-3 py-2 text-[11px] tabular-nums flex items-center gap-1.5"
             title="Toggle chronological order"
           >
-            <ArrowUpDown className="w-3 h-3 text-[#8C8C87]" />
+            <ArrowUpDown className="w-3 h-3 text-muted" />
             <span>{sortOrder === 'desc' ? 'NEWEST' : 'OLDEST'}</span>
           </button>
 
           {/* Export CSV */}
           <button
             onClick={exportToCSV}
-            className="cred-button-secondary px-3 py-2 text-[11px] font-mono font-bold flex items-center gap-1.5 text-emerald-400"
+            className="cred-button-secondary px-3 py-2 text-[11px] tabular-nums font-bold flex items-center gap-1.5 text-emerald-700"
             title="Export CSV spreadsheet"
           >
-            <Download className="w-3 h-3 text-emerald-400" />
+            <Download className="w-3 h-3 text-emerald-700" />
             <span>EXPORT CSV</span>
           </button>
 
           <button
             onClick={fetchHistory}
-            className="p-2 rounded-xl bg-white/[0.03] border border-white/[0.08] text-[#8C8C87] hover:text-white"
+            className="p-2 rounded-xl bg-ink/[0.03] border border-ink/[0.08] text-muted hover:text-ink"
             title="Refresh list"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
@@ -226,8 +226,8 @@ export const HistoryTable: React.FC = () => {
       {/* Main Table Ledger */}
       <div className="cred-card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-[#CCCCCC]">
-            <thead className="bg-[#0A0A0A] border-b border-white/[0.08] text-[10px] font-mono font-bold uppercase tracking-wider text-[#8C8C87]">
+          <table className="w-full text-left text-xs text-ink-soft">
+            <thead className="bg-paper-2 border-b border-ink/[0.08] text-[10px] tabular-nums font-bold uppercase tracking-wider text-muted">
               <tr>
                 <th className="py-3.5 px-4">PREVIEW</th>
                 <th className="py-3.5 px-4">TIMESTAMP</th>
@@ -238,11 +238,11 @@ export const HistoryTable: React.FC = () => {
                 <th className="py-3.5 px-4 text-right">ACTIONS</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/[0.04] font-mono">
+            <tbody className="divide-y divide-ink/[0.04] tabular-nums">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="py-14 text-center text-[#8C8C87]">
-                    <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-emerald-400" />
+                  <td colSpan={7} className="py-14 text-center text-muted">
+                    <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-emerald-700" />
                     QUERYING CLASSIFICATION LEDGER...
                   </td>
                 </tr>
@@ -250,26 +250,27 @@ export const HistoryTable: React.FC = () => {
                 historyData.items.map((item) => (
                   <tr
                     key={item.id}
-                    className="hover:bg-white/[0.02] transition-colors group cursor-pointer"
+                    className="hover:bg-ink/[0.02] transition-colors group cursor-pointer"
                     onClick={() => setSelectedItem(item)}
                   >
                     {/* Thumbnail */}
                     <td className="py-3 px-4">
-                      <div className="w-11 h-11 rounded-lg bg-black border border-white/[0.08] overflow-hidden flex items-center justify-center">
+                      <div className="w-11 h-11 rounded-lg bg-paper-2 border border-ink/[0.08] overflow-hidden flex items-center justify-center">
                         {item.annotated_image_url || item.original_image_url ? (
                           <img
                             src={item.annotated_image_url || item.original_image_url}
-                            alt="Scan Thumbnail"
+                            alt=""
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <Eye className="w-4 h-4 text-[#525252]" />
+                          <Eye className="w-4 h-4 text-subtle" />
                         )}
                       </div>
                     </td>
 
                     {/* Timestamp */}
-                    <td className="py-3 px-4 text-[#8C8C87] text-[11px]">
+                    <td className="py-3 px-4 text-muted text-[11px]">
                       {new Date(item.created_at).toLocaleString([], {
                         month: 'short',
                         day: 'numeric',
@@ -279,19 +280,19 @@ export const HistoryTable: React.FC = () => {
                     </td>
 
                     {/* Primary Category Badge */}
-                    <td className="py-3 px-4 font-sans font-bold text-white">
-                      <span className="px-2.5 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-xs">
+                    <td className="py-3 px-4 font-sans font-bold text-ink">
+                      <span className="px-2.5 py-0.5 rounded-full bg-ink/[0.04] border border-ink/[0.08] text-xs">
                         {item.primary_category}
                       </span>
                     </td>
 
                     {/* Objects Detected */}
                     <td className="py-3 px-4">
-                      <span className="font-bold text-white">
+                      <span className="font-bold text-ink">
                         {item.total_objects} item{item.total_objects > 1 ? 's' : ''}
                       </span>
                       {item.objects.length > 0 && (
-                        <p className="text-[10px] text-[#8C8C87] font-sans truncate max-w-[160px]">
+                        <p className="text-[10px] text-muted font-sans truncate max-w-[160px]">
                           {item.objects.map((o) => o.label).join(', ')}
                         </p>
                       )}
@@ -300,10 +301,10 @@ export const HistoryTable: React.FC = () => {
                     {/* Confidence */}
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-emerald-400">
+                        <span className="font-bold text-emerald-700">
                           {Math.round(item.average_confidence * 100)}%
                         </span>
-                        <div className="w-12 h-1 bg-white/[0.08] rounded-full overflow-hidden">
+                        <div className="w-12 h-1 bg-ink/[0.08] rounded-full overflow-hidden">
                           <div
                             className="h-full bg-emerald-400 rounded-full"
                             style={{ width: `${Math.round(item.average_confidence * 100)}%` }}
@@ -314,7 +315,7 @@ export const HistoryTable: React.FC = () => {
 
                     {/* Source */}
                     <td className="py-3 px-4">
-                      <span className="text-[9px] uppercase font-bold px-2 py-0.5 rounded bg-white/[0.03] text-[#8C8C87] border border-white/[0.06]">
+                      <span className="text-[9px] uppercase font-bold px-2 py-0.5 rounded bg-ink/[0.03] text-muted border border-ink/[0.06]">
                         {item.source}
                       </span>
                     </td>
@@ -324,7 +325,7 @@ export const HistoryTable: React.FC = () => {
                       <div className="flex items-center justify-end gap-1.5">
                         <button
                           onClick={() => setSelectedItem(item)}
-                          className="p-1.5 rounded-lg text-[#8C8C87] hover:text-white hover:bg-white/[0.06] transition-colors"
+                          className="p-1.5 rounded-lg text-muted hover:text-ink hover:bg-ink/[0.06] transition-colors"
                           title="Inspect Details"
                         >
                           <Eye className="w-3.5 h-3.5" />
@@ -332,7 +333,7 @@ export const HistoryTable: React.FC = () => {
                         <button
                           onClick={() => handleDelete(item.id)}
                           disabled={deletingId === item.id}
-                          className="p-1.5 rounded-lg text-[#8C8C87] hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                          className="p-1.5 rounded-lg text-muted hover:text-rose-700 hover:bg-rose-500/10 transition-colors"
                           title="Delete Record"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -343,7 +344,7 @@ export const HistoryTable: React.FC = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-[#8C8C87]">
+                  <td colSpan={7} className="py-12 text-center text-muted">
                     NO CLASSIFICATION RECORDS FOUND MATCHING ACTIVE FILTERS.
                   </td>
                 </tr>
@@ -354,13 +355,13 @@ export const HistoryTable: React.FC = () => {
 
         {/* Pagination Footer */}
         {historyData && historyData.total > 0 && (
-          <div className="flex items-center justify-between p-4 border-t border-white/[0.08] text-xs font-mono text-[#8C8C87]">
+          <div className="flex items-center justify-between p-4 border-t border-ink/[0.08] text-xs tabular-nums text-muted">
             <div>
-              SHOWING <span className="font-bold text-white">{(page - 1) * limit + 1}</span> TO{' '}
-              <span className="font-bold text-white">
+              SHOWING <span className="font-bold text-ink">{(page - 1) * limit + 1}</span> TO{' '}
+              <span className="font-bold text-ink">
                 {Math.min(page * limit, historyData.total)}
               </span>{' '}
-              OF <span className="font-bold text-white">{historyData.total}</span> SCANS
+              OF <span className="font-bold text-ink">{historyData.total}</span> SCANS
             </div>
 
             <div className="flex items-center gap-2">
@@ -371,7 +372,7 @@ export const HistoryTable: React.FC = () => {
               >
                 PREV
               </button>
-              <span className="px-2 text-white font-bold">
+              <span className="px-2 text-ink font-bold">
                 {page} / {totalPages}
               </span>
               <button
@@ -388,26 +389,26 @@ export const HistoryTable: React.FC = () => {
 
       {/* Detailed Modal Inspection View */}
       {selectedItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
-          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto cred-card p-6 sm:p-8 flex flex-col gap-6 text-left border border-white/[0.15]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/50 overflow-y-auto">
+          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto cred-card p-6 sm:p-8 flex flex-col gap-6 text-left border border-ink/[0.15]">
             
             {/* Modal Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-white/[0.08]">
+            <div className="flex items-center justify-between pb-4 border-b border-ink/[0.08]">
               <div>
                 <div className="flex items-center gap-3">
-                  <h3 className="text-xl font-black text-white tracking-tight">Audit Diagnostic Record</h3>
-                  <span className="text-xs font-mono px-3 py-1 rounded-full cred-badge-emerald font-bold">
+                  <h3 className="text-xl font-semibold text-ink tracking-tight">Audit Diagnostic Record</h3>
+                  <span className="text-xs tabular-nums px-3 py-1 rounded-full cred-badge-emerald font-bold">
                     {selectedItem.primary_category}
                   </span>
                 </div>
-                <p className="text-xs text-[#8C8C87] font-mono mt-0.5">
+                <p className="text-xs text-muted tabular-nums mt-0.5">
                   ID: {selectedItem.id} • {new Date(selectedItem.created_at).toLocaleString()}
                 </p>
               </div>
 
               <button
                 onClick={() => setSelectedItem(null)}
-                className="p-2 rounded-full bg-white/[0.04] text-[#8C8C87] hover:text-white transition-colors"
+                className="p-2 rounded-full bg-ink/[0.04] text-muted hover:text-ink transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -424,7 +425,7 @@ export const HistoryTable: React.FC = () => {
 
             {/* Detected Objects Cards */}
             <div className="flex flex-col gap-3">
-              <h4 className="text-xs font-mono uppercase tracking-widest text-[#8C8C87]">
+              <h4 className="text-xs tabular-nums uppercase tracking-widest text-muted">
                 SEGMENTED WASTE OBJECTS ({selectedItem.objects.length})
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

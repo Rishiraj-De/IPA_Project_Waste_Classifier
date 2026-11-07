@@ -43,16 +43,16 @@ export const BoundingBoxOverlay: React.FC<BoundingBoxOverlayProps> = ({
   return (
     <div className="flex flex-col gap-3 w-full">
       {/* Visual Controls Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-paper-2 border border-ink/[0.08] text-xs">
         
         {/* View Mode Selector */}
-        <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800">
+        <div className="flex items-center gap-1 bg-paper-2 p-1 rounded-lg border border-ink/[0.08]">
           <button
             onClick={() => setViewMode('interactive')}
             className={`px-2.5 py-1 rounded-md font-medium transition-all ${
               viewMode === 'interactive' 
-                ? 'bg-eco-600 text-white shadow-sm' 
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-ink text-paper shadow-sm' 
+                : 'text-muted hover:text-ink-soft'
             }`}
           >
             Interactive HUD
@@ -61,8 +61,8 @@ export const BoundingBoxOverlay: React.FC<BoundingBoxOverlayProps> = ({
             onClick={() => setViewMode('annotated')}
             className={`px-2.5 py-1 rounded-md font-medium transition-all ${
               viewMode === 'annotated' 
-                ? 'bg-blue-600 text-white shadow-sm' 
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-ink text-paper shadow-sm' 
+                : 'text-muted hover:text-ink-soft'
             }`}
           >
             Server Rendered
@@ -71,8 +71,8 @@ export const BoundingBoxOverlay: React.FC<BoundingBoxOverlayProps> = ({
             onClick={() => setViewMode('original')}
             className={`px-2.5 py-1 rounded-md font-medium transition-all ${
               viewMode === 'original' 
-                ? 'bg-slate-800 text-white shadow-sm' 
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-ink text-paper shadow-sm' 
+                : 'text-muted hover:text-ink-soft'
             }`}
           >
             Original Clean
@@ -86,8 +86,8 @@ export const BoundingBoxOverlay: React.FC<BoundingBoxOverlayProps> = ({
               onClick={() => setShowBoxes(!showBoxes)}
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-medium transition-all ${
                 showBoxes
-                  ? 'bg-slate-800 border-slate-700 text-slate-200'
-                  : 'bg-transparent border-slate-800 text-slate-500 hover:text-slate-400'
+                  ? 'bg-ink/[0.08] border-ink/[0.15] text-ink-soft'
+                  : 'bg-transparent border-ink/[0.08] text-muted hover:text-muted'
               }`}
               title="Toggle bounding box borders"
             >
@@ -99,8 +99,8 @@ export const BoundingBoxOverlay: React.FC<BoundingBoxOverlayProps> = ({
               onClick={() => setShowLabels(!showLabels)}
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-medium transition-all ${
                 showLabels
-                  ? 'bg-slate-800 border-slate-700 text-slate-200'
-                  : 'bg-transparent border-slate-800 text-slate-500 hover:text-slate-400'
+                  ? 'bg-ink/[0.08] border-ink/[0.15] text-ink-soft'
+                  : 'bg-transparent border-ink/[0.08] text-muted hover:text-muted'
               }`}
               title="Toggle object classification labels"
             >
@@ -112,8 +112,8 @@ export const BoundingBoxOverlay: React.FC<BoundingBoxOverlayProps> = ({
               onClick={() => setShowConfidence(!showConfidence)}
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-medium transition-all ${
                 showConfidence
-                  ? 'bg-slate-800 border-slate-700 text-slate-200'
-                  : 'bg-transparent border-slate-800 text-slate-500 hover:text-slate-400'
+                  ? 'bg-ink/[0.08] border-ink/[0.15] text-ink-soft'
+                  : 'bg-transparent border-ink/[0.08] text-muted hover:text-muted'
               }`}
               title="Toggle confidence score percentage"
             >
@@ -125,8 +125,8 @@ export const BoundingBoxOverlay: React.FC<BoundingBoxOverlayProps> = ({
               onClick={() => setEnhanceContrast(!enhanceContrast)}
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-medium transition-all ${
                 enhanceContrast
-                  ? 'bg-eco-950/80 border-eco-500/40 text-eco-300'
-                  : 'bg-transparent border-slate-800 text-slate-500 hover:text-slate-400'
+                  ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-700'
+                  : 'bg-transparent border-ink/[0.08] text-muted hover:text-muted'
               }`}
               title="Toggle contrast enhancement filter"
             >
@@ -139,7 +139,7 @@ export const BoundingBoxOverlay: React.FC<BoundingBoxOverlayProps> = ({
       </div>
 
       {/* Main Image Viewport with Detection Overlay */}
-      <div className="relative w-full rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center min-h-[360px] max-h-[580px] shadow-2xl p-2">
+      <div className="relative w-full rounded-2xl overflow-hidden bg-paper-2 border border-ink/[0.08] flex items-center justify-center min-h-[360px] max-h-[580px] p-2">
         {displayImage ? (
           <div className="relative inline-flex items-center justify-center max-w-full max-h-[560px]">
             <img
@@ -208,19 +208,19 @@ export const BoundingBoxOverlay: React.FC<BoundingBoxOverlayProps> = ({
             )}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center p-8 text-slate-500">
-            <Eye className="w-12 h-12 mb-2 stroke-1 text-slate-600" />
+          <div className="flex flex-col items-center justify-center p-8 text-muted">
+            <Eye className="w-12 h-12 mb-2 stroke-1 text-subtle" />
             <p className="text-sm font-medium">No Image Uploaded Yet</p>
-            <p className="text-xs text-slate-600">Upload or capture waste to display bounding boxes</p>
+            <p className="text-xs text-subtle">Upload or capture waste to display bounding boxes</p>
           </div>
         )}
       </div>
 
       {/* Detection Count Legend Footer */}
       {detections.length > 0 && (
-        <div className="flex items-center justify-between text-xs text-slate-400 px-1">
+        <div className="flex items-center justify-between text-xs text-muted px-1">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-200">{detections.length}</span>
+            <span className="font-semibold text-ink-soft">{detections.length}</span>
             <span>waste object{detections.length > 1 ? 's' : ''} localized</span>
           </div>
           <div className="flex items-center gap-3">
@@ -230,7 +230,7 @@ export const BoundingBoxOverlay: React.FC<BoundingBoxOverlayProps> = ({
                   className="w-2.5 h-2.5 rounded-full"
                   style={{ backgroundColor: CATEGORY_COLORS[cat] || '#64748b' }}
                 />
-                <span className="text-slate-300 font-medium">{cat}</span>
+                <span className="text-ink-soft font-medium">{cat}</span>
               </div>
             ))}
           </div>

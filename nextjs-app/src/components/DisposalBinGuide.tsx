@@ -90,13 +90,13 @@ export const DisposalBinGuide: React.FC = () => {
   return (
     <div className="flex flex-col gap-6 w-full text-left">
       <div>
-        <span className="text-xs font-mono uppercase tracking-widest text-[#525252] block mb-1">
-          [ MUNICIPAL COLOR DIRECTIVES ]
+        <span className="kicker block mb-1">
+          MUNICIPAL COLOR DIRECTIVES
         </span>
-        <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+        <h3 className="text-2xl sm:text-3xl font-semibold text-ink tracking-tight">
           Standardized Segregation Protocols
         </h3>
-        <p className="text-xs text-[#8C8C87] mt-1 font-normal">
+        <p className="text-xs text-muted mt-1 font-normal">
           Industrial material separation guidelines and preparation steps to ensure 100% recycling purity.
         </p>
       </div>
@@ -115,9 +115,9 @@ export const DisposalBinGuide: React.FC = () => {
                   style={{ backgroundColor: item.colorHex }}
                 />
                 <div>
-                  <h4 className="text-sm font-bold text-white tracking-tight">{item.category}</h4>
+                  <h4 className="text-sm font-bold text-ink tracking-tight">{item.category}</h4>
                   <span
-                    className="text-[9px] font-mono font-bold tracking-wider uppercase block opacity-80"
+                    className="text-[9px] tabular-nums font-bold tracking-wider uppercase block opacity-80"
                     style={{ color: item.colorHex }}
                   >
                     {item.badge}
@@ -126,24 +126,24 @@ export const DisposalBinGuide: React.FC = () => {
               </div>
 
               {/* Acceptable items */}
-              <div className="text-xs space-y-2 mt-3 font-mono">
+              <div className="text-xs space-y-2 mt-3 tabular-nums">
                 <div className="flex items-start gap-2">
-                  <span className="text-emerald-400 font-bold text-[10px] mt-0.5">✓</span>
-                  <span className="text-[11px] text-[#CCCCCC]">
-                    <strong className="text-white font-sans">Accept:</strong> {item.examples}
+                  <span className="text-emerald-700 font-bold text-[10px] mt-0.5">✓</span>
+                  <span className="text-[11px] text-ink-soft">
+                    <strong className="text-ink font-sans">Accept:</strong> {item.examples}
                   </span>
                 </div>
 
                 <div className="flex items-start gap-2">
-                  <span className="text-rose-400 font-bold text-[10px] mt-0.5">✕</span>
-                  <span className="text-[11px] text-[#8C8C87]">
-                    <strong className="text-[#CCCCCC] font-sans">Avoid:</strong> {item.notAccepted}
+                  <span className="text-rose-700 font-bold text-[10px] mt-0.5">✕</span>
+                  <span className="text-[11px] text-muted">
+                    <strong className="text-ink-soft font-sans">Avoid:</strong> {item.notAccepted}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="pt-3 mt-4 border-t border-white/[0.06] text-[11px] text-emerald-400/90 font-mono">
+            <div className="pt-3 mt-4 border-t border-ink/[0.06] text-[11px] text-emerald-700/90 tabular-nums">
               PREP: {item.prepTip}
             </div>
           </div>

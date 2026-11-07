@@ -19,7 +19,7 @@ interface ConfidenceHistChartProps {
 export const ConfidenceHistChart: React.FC<ConfidenceHistChartProps> = ({ data }) => {
   if (!data || data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-500 text-xs">
+      <div className="flex items-center justify-center h-64 text-muted text-xs">
         No confidence distribution data available yet.
       </div>
     );
@@ -28,10 +28,10 @@ export const ConfidenceHistChart: React.FC<ConfidenceHistChartProps> = ({ data }
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="p-3 rounded-xl bg-slate-950/95 border border-slate-800 shadow-2xl text-xs space-y-1">
-          <p className="font-bold text-white">Confidence Range: {label}</p>
-          <p className="text-eco-400 font-semibold">
-            Detections: <strong className="text-white">{payload[0].value}</strong>
+        <div className="p-3 rounded-2xl bg-surface border border-ink/[0.08] shadow-lg text-xs space-y-1">
+          <p className="font-bold text-ink">Confidence Range: {label}</p>
+          <p className="text-emerald-700 font-semibold">
+            Detections: <strong className="text-ink">{payload[0].value}</strong>
           </p>
         </div>
       );
@@ -43,14 +43,14 @@ export const ConfidenceHistChart: React.FC<ConfidenceHistChartProps> = ({ data }
     <div className="w-full h-72">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 15, right: 10, left: -20, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-          <XAxis dataKey="range" stroke="#64748b" fontSize={11} />
-          <YAxis stroke="#64748b" fontSize={11} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#8a7da6" strokeOpacity={0.25} vertical={false} />
+          <XAxis dataKey="range" stroke="#857e90" fontSize={11} tickLine={false} />
+          <YAxis stroke="#857e90" fontSize={11} tickLine={false} />
           <Tooltip content={<CustomTooltip />} />
           <Bar dataKey="count" radius={[6, 6, 0, 0]}>
             {data.map((_, index) => {
               // Color gradient: higher confidence is deeper green
-              const colors = ['#f59e0b', '#84cc16', '#22c55e', '#16a34a', '#059669'];
+              const colors = ['#d9a441', '#c1d47a', '#9cc53f', '#7eaa2b', '#5f8c1e'];
               const color = colors[index % colors.length];
               return <Cell key={`cell-${index}`} fill={color} />;
             })}
