@@ -60,6 +60,7 @@ export const MainApp: React.FC<MainAppProps> = ({ initialTab = 'landing' }) => {
             onStartScanning={() => changeTab('detect')}
             onOpenDashboard={() => changeTab('dashboard')}
             onOpenImpact={() => changeTab('impact')}
+            onOpenHistory={() => changeTab('history')}
           />
         )}
 
@@ -81,7 +82,7 @@ export const MainApp: React.FC<MainAppProps> = ({ initialTab = 'landing' }) => {
               <Recycle className="w-[18px] h-[18px]" strokeWidth={2.2} />
             </span>
             <div>
-              <p className="font-semibold text-[15px] tracking-[0.12em] uppercase text-ink">
+              <p className="font-display font-bold text-[17px] tracking-tight text-ink">
                 Classify<span className="text-lavender">.ai</span>
               </p>
               <p className="text-sm text-muted mt-1 leading-relaxed">

@@ -6,76 +6,78 @@ interface LandscapeProps {
 }
 
 /**
- * Flat, layered landscape: blush sky, lavender ridges, green meadow and a
- * sorted set of bins in the grass. Colours come from CSS variables so the
- * scene switches to a dusk palette in dark mode.
+ * Flat, layered meadow: pale sky, sun and clouds, rolling sage hills with a
+ * winding path, round bushes and a tall tree. Colours come from CSS variables
+ * so the scene switches to a night palette in dark mode.
  */
 export const Landscape: React.FC<LandscapeProps> = ({
   className,
-  preserveAspectRatio = 'xMaxYMid slice',
+  preserveAspectRatio = 'xMidYMax slice',
 }) => (
   <svg
-    viewBox="0 0 1440 640"
+    viewBox="0 0 1440 760"
     preserveAspectRatio={preserveAspectRatio}
     className={className}
     aria-hidden="true"
     focusable="false"
   >
-    <rect width="1440" height="640" fill="var(--l-sky)" />
-    <circle cx="1130" cy="150" r="64" fill="var(--l-sun)" />
+    <rect width="1440" height="760" fill="var(--l-sky)" />
 
-    {/* Far ridges */}
-    <path
-      d="M0 330 L120 230 L210 280 L330 170 L450 260 L560 190 L700 290 L820 160 L930 240 L1040 150 L1170 250 L1290 180 L1440 270 L1440 640 L0 640 Z"
-      fill="var(--l-ridge-far)"
-    />
-    {/* Mid ridges */}
-    <path
-      d="M0 380 L150 300 L260 350 L400 250 L520 330 L660 270 L780 350 L900 240 L1010 320 L1150 230 L1270 310 L1440 250 L1440 640 L0 640 Z"
-      fill="var(--l-ridge-mid)"
-    />
-    {/* Near ridge with snow-free flat facets */}
-    <path
-      d="M0 470 L130 420 L260 455 L400 395 L560 420 L700 330 L790 380 L900 300 L1000 370 L1120 310 L1240 380 L1340 330 L1440 370 L1440 640 L0 640 Z"
-      fill="var(--l-ridge-near)"
-    />
+    {/* Sun and clouds */}
+    <circle cx="1130" cy="190" r="78" fill="var(--l-sun)" />
+    <g fill="var(--l-cloud)">
+      <path d="M980 262 C990 236 1024 228 1046 244 C1060 222 1100 220 1116 244 C1140 236 1172 246 1176 268 L1176 276 L980 276 Z" />
+      <path d="M150 330 C160 300 200 292 226 310 C244 284 292 284 308 312 C336 302 372 316 374 342 L374 350 L150 350 Z" />
+    </g>
 
-    {/* Meadow hills */}
+    {/* Far hills */}
     <path
-      d="M0 520 C150 490 300 480 420 470 C620 390 820 400 1000 430 C1160 455 1300 400 1440 380 L1440 640 L0 640 Z"
+      d="M0 470 C160 420 300 410 450 440 C600 470 700 400 860 395 C1020 390 1150 450 1290 430 C1360 420 1410 410 1440 405 L1440 760 L0 760 Z"
       fill="var(--l-hill-far)"
     />
+    {/* Mid hills */}
     <path
-      d="M0 575 C200 545 380 550 520 540 C700 460 900 470 1080 500 C1240 525 1340 480 1440 470 L1440 640 L0 640 Z"
+      d="M0 540 C140 500 260 480 400 505 C540 530 640 470 800 470 C960 470 1060 530 1200 515 C1300 505 1380 480 1440 470 L1440 760 L0 760 Z"
       fill="var(--l-hill-mid)"
     />
+    {/* Winding path */}
     <path
-      d="M0 625 C250 600 450 605 640 610 C820 560 1000 560 1180 585 C1300 600 1380 580 1440 575 L1440 640 L0 640 Z"
+      d="M650 760 C700 690 820 660 900 620 C960 590 960 560 900 540 C960 545 1010 565 1000 600 C985 650 860 690 820 760 Z"
+      fill="var(--l-path)"
+    />
+    {/* Near hills */}
+    <path
+      d="M0 620 C150 580 300 590 440 620 C540 640 610 630 680 640 C700 680 670 720 650 760 L0 760 Z"
+      fill="var(--l-hill-near)"
+    />
+    <path
+      d="M860 760 C900 700 990 660 1100 640 C1220 618 1330 630 1440 600 L1440 760 Z"
       fill="var(--l-hill-near)"
     />
 
-    {/* Trees */}
+    {/* Tall tree on the right */}
+    <path d="M1240 330 L1310 600 L1170 600 Z" fill="var(--l-tree-2)" />
+    <path d="M1240 360 L1240 640" stroke="var(--l-trunk)" strokeWidth="6" strokeLinecap="round" />
+    <path
+      d="M1240 450 L1270 420 M1240 500 L1212 472 M1240 540 L1272 508"
+      stroke="var(--l-trunk)"
+      strokeWidth="4"
+      strokeLinecap="round"
+    />
+
+    {/* Front bushes framing both sides */}
+    <g fill="var(--l-hill-front)">
+      <circle cx="40" cy="640" r="110" />
+      <circle cx="170" cy="700" r="95" />
+      <circle cx="300" cy="740" r="80" />
+      <circle cx="1440" cy="660" r="120" />
+      <circle cx="1320" cy="725" r="90" />
+      <circle cx="1190" cy="760" r="70" />
+    </g>
     <g fill="var(--l-tree)">
-      <ellipse cx="960" cy="425" rx="34" ry="26" />
-      <ellipse cx="1000" cy="432" rx="26" ry="20" />
-      <ellipse cx="1300" cy="402" rx="30" ry="24" />
-      <ellipse cx="1338" cy="410" rx="22" ry="17" />
+      <circle cx="-10" cy="560" r="80" />
+      <circle cx="90" cy="600" r="60" />
+      <circle cx="1460" cy="580" r="70" />
     </g>
-    <g fill="var(--l-tree-2)">
-      <path d="M760 470 L782 410 L804 470 Z" />
-      <path d="M792 476 L810 428 L828 476 Z" />
-      <path d="M1192 500 L1214 440 L1236 500 Z" />
-    </g>
-
-    {/* Three sorting bins standing in the grass */}
-    <g transform="translate(1040 520)">
-      <rect x="0" y="0" width="38" height="50" rx="5" fill="#5b8fc9" />
-      <rect x="-3" y="-8" width="44" height="10" rx="4" fill="#4878ad" />
-      <rect x="52" y="0" width="38" height="50" rx="5" fill="#5f8c1e" />
-      <rect x="49" y="-8" width="44" height="10" rx="4" fill="#4a7016" />
-      <rect x="104" y="0" width="38" height="50" rx="5" fill="#d0743f" />
-      <rect x="101" y="-8" width="44" height="10" rx="4" fill="#b55f30" />
-    </g>
-
   </svg>
 );

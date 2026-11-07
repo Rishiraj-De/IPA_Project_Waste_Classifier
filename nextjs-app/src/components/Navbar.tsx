@@ -73,7 +73,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, systemH
             <span className="w-9 h-9 rounded-full bg-leaf text-on-leaf flex items-center justify-center">
               <Recycle className="w-[18px] h-[18px]" strokeWidth={2.2} />
             </span>
-            <span className="font-semibold text-[17px] tracking-[0.12em] text-ink uppercase">
+            <span className="font-display font-bold text-[19px] tracking-tight text-ink">
               Classify<span className="text-lavender">.ai</span>
             </span>
           </button>
@@ -88,16 +88,11 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, systemH
                   onMouseEnter={() => sound.playHover()}
                   onClick={() => go(item.id)}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`relative px-3.5 py-2 text-[13px] font-medium uppercase tracking-[0.12em] transition-colors ${
-                    isActive ? 'text-ink' : 'text-muted hover:text-ink'
+                  className={`px-4 py-2 rounded-xl text-[15px] font-medium transition-colors ${
+                    isActive ? 'bg-paper-2 text-ink' : 'text-muted hover:text-ink'
                   }`}
                 >
                   {item.label}
-                  <span
-                    className={`absolute left-3.5 right-3.5 -bottom-0.5 h-[2px] rounded-full bg-lime transition-opacity ${
-                      isActive ? 'opacity-100' : 'opacity-0'
-                    }`}
-                  />
                 </button>
               );
             })}
@@ -139,7 +134,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, systemH
                 setActiveTab('detect');
                 setMobileMenuOpen(false);
               }}
-              className="hidden sm:flex cred-button-primary ml-1.5 px-5 py-2.5 text-xs uppercase items-center gap-1.5"
+              className="hidden sm:flex cred-button-primary ml-1.5 px-5 py-2.5 text-sm items-center gap-1.5"
             >
               <span>Scan waste</span>
               <ArrowUpRight className="w-3.5 h-3.5" />
@@ -167,7 +162,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, systemH
                 key={item.id}
                 onClick={() => go(item.id)}
                 aria-current={isActive ? 'page' : undefined}
-                className={`w-full flex items-center justify-between px-3 py-3 border-b border-ink/[0.06] text-sm uppercase tracking-[0.12em] ${
+                className={`w-full flex items-center justify-between px-3 py-3 border-b border-ink/[0.06] text-[15px] ${
                   isActive ? 'text-ink font-semibold' : 'text-muted'
                 }`}
               >
@@ -182,7 +177,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, systemH
               setActiveTab('detect');
               setMobileMenuOpen(false);
             }}
-            className="sm:hidden cred-button-primary w-full mt-4 px-5 py-3 text-xs uppercase flex items-center justify-center gap-1.5"
+            className="sm:hidden cred-button-primary w-full mt-4 px-5 py-3 text-sm flex items-center justify-center gap-1.5"
           >
             <span>Scan waste</span>
             <ArrowUpRight className="w-3.5 h-3.5" />

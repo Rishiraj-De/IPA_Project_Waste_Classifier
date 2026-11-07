@@ -288,11 +288,11 @@ export class DataStore {
   public static getStatistics(): StatisticsResponse {
     const data = this.load();
     const totalScans = data.records.length;
-    let totalItems = data.objects.length;
+    const totalItems = data.objects.length;
 
-    let recyclableCount = data.objects.filter((o) => Boolean(o.recyclable)).length;
-    let nonRecyclableCount = totalItems - recyclableCount;
-    let recyclablePct = totalItems > 0 ? Math.round((recyclableCount / totalItems) * 1000) / 10 : 0.0;
+    const recyclableCount = data.objects.filter((o) => Boolean(o.recyclable)).length;
+    const nonRecyclableCount = totalItems - recyclableCount;
+    const recyclablePct = totalItems > 0 ? Math.round((recyclableCount / totalItems) * 1000) / 10 : 0.0;
 
     let avgConf = 0.0;
     if (totalItems > 0) {
@@ -306,7 +306,7 @@ export class DataStore {
       catCountMap.set(obj.category, (catCountMap.get(obj.category) || 0) + 1);
     }
 
-    let categoryStats: CategoryStat[] = [];
+    const categoryStats: CategoryStat[] = [];
     let mostCommon = 'None';
     let maxC = -1;
 
@@ -324,23 +324,7 @@ export class DataStore {
       }
     });
 
-    // Baseline fallback if data is empty or minimal
-    if (categoryStats.length === 0) {
-      categoryStats = [
-        { category: 'Plastic', count: 45, percentage: 34.6, color: CATEGORY_COLORS['Plastic'] },
-        { category: 'Organic', count: 32, percentage: 24.6, color: CATEGORY_COLORS['Organic'] },
-        { category: 'Paper', count: 20, percentage: 15.4, color: CATEGORY_COLORS['Paper'] },
-        { category: 'Metal', count: 15, percentage: 11.5, color: CATEGORY_COLORS['Metal'] },
-        { category: 'Glass', count: 10, percentage: 7.7, color: CATEGORY_COLORS['Glass'] },
-        { category: 'E-Waste', count: 8, percentage: 6.2, color: CATEGORY_COLORS['E-Waste'] },
-      ];
-      mostCommon = 'Plastic';
-      totalItems = 130;
-      recyclableCount = 110;
-      nonRecyclableCount = 20;
-      recyclablePct = 84.6;
-      avgConf = 0.88;
-    }
+    categoryStats.sort((a, b) => b.count - a.count);
 
     // Daily trends for past 7 days
     const today = new Date();
@@ -365,38 +349,27 @@ export class DataStore {
       const dayObjs = data.objects.filter((o) => dayRecordIds.has(o.record_id));
       const dayRecyc = dayObjs.filter((o) => Boolean(o.recyclable)).length;
 
-      if (totalScans === 0) {
-        const baseScans = [12, 18, 15, 24, 28, 22, 19][6 - i];
-        const baseItems = [25, 38, 30, 48, 55, 42, 38][6 - i];
-        const baseR = Math.floor(baseItems * 0.82);
-        dailyTrends.push({
-          date: dayStr,
-          scans: baseScans,
-          items_detected: baseItems,
-          recyclable: baseR,
-          non_recyclable: baseItems - baseR,
-        });
-      } else {
-        dailyTrends.push({
-          date: dayStr,
-          scans: dayRecords.length,
-          items_detected: dayObjs.length,
-          recyclable: dayRecyc,
-          non_recyclable: dayObjs.length - dayRecyc,
-        });
-      }
+      dailyTrends.push({
+        date: dayStr,
+        scans: dayRecords.length,
+        items_detected: dayObjs.length,
+        recyclable: dayRecyc,
+        non_recyclable: dayObjs.length - dayRecyc,
+      });
     }
 
-    const confidenceHistogram: ConfidenceBucket[] = [
-      { range: '50-60%', count: 12 },
-      { range: '60-70%', count: 24 },
-      { range: '70-80%', count: 48 },
-      { range: '80-90%', count: 82 },
-      { range: '90-100%', count: 115 },
-    ];
+    // Confidence histogram built from the stored detections
+    const buckets = [50, 60, 70, 80, 90];
+    const confidenceHistogram: ConfidenceBucket[] = buckets.map((lo) => ({
+      range: `${lo}-${lo + 10}%`,
+      count: data.objects.filter((o) => {
+        const pct = o.confidence * 100;
+        return lo === 50 ? pct < 60 : lo === 90 ? pct >= 90 : pct >= lo && pct < lo + 10;
+      }).length,
+    }));
 
     return {
-      total_scans: Math.max(totalScans, dailyTrends.length),
+      total_scans: totalScans,
       total_items_detected: totalItems,
       recyclable_count: recyclableCount,
       non_recyclable_count: nonRecyclableCount,

@@ -4,76 +4,77 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* =========================================================
-   CLASSIFY.AI — "Meadow" design tokens
-   Inspired by a calm environment-community look: blush sky,
-   lavender ridges, grass greens, warm paper and charcoal ink.
-   Flat colours only, no glass or glow.
+   CLASSIFY.AI — "Sage" design tokens
+   Monochrome olive and sage on warm cream: tonal cards, khaki
+   tiles, deep-olive buttons. Flat colours, no shadows or glows.
+   (Token names are kept from the previous theme so every page
+   picks up the new values.)
 ========================================================= */
 :root {
-  --paper: #fbf6f0;
-  --paper-2: #f4ece3;
-  --surface: #ffffff;
-  --blush: #f3d6cb;
-  --ink: #36323f;
-  --ink-soft: #4d4857;
-  --muted: #6b6576;
-  --subtle: #857e90;
-  --lavender: #8a7da6;
-  --lavender-deep: #5e5478;
-  --leaf: #4f7d19;
-  --leaf-hover: #426a12;
-  --on-leaf: #ffffff;
-  --lime: #9cc53f;
-  --moss: #3e6814;
+  --paper: #f3efd8;
+  --paper-2: #e8e3c3;
+  --surface: #faf7e6;
+  --blush: #e4e9b9;
+  --ink: #36502e;
+  --ink-soft: #4a6340;
+  --muted: #627456;
+  --subtle: #758565;
+  --lavender: #5e7a48;
+  --lavender-deep: #3f5b33;
+  --leaf: #4a693d;
+  --leaf-hover: #3d5a32;
+  --on-leaf: #f5f1da;
+  --lime: #b9cb86;
+  --moss: #3f6130;
 
   /* Landscape illustration */
-  --l-sky: #f3d6cb;
-  --l-sun: #fbe9df;
-  --l-ridge-far: #b9a9c6;
-  --l-ridge-mid: #9787ad;
-  --l-ridge-near: #74688f;
-  --l-hill-far: #6f9a2c;
-  --l-hill-mid: #8db83a;
-  --l-hill-near: #a9cf55;
-  --l-tree: #3f6a1c;
-  --l-tree-2: #557f22;
-  --l-band: #a99bc0;
+  --l-sky: #e4e9b9;
+  --l-sun: #f4f3c4;
+  --l-cloud: #f0f1cf;
+  --l-hill-far: #c3d199;
+  --l-hill-mid: #a3b977;
+  --l-hill-near: #84a05b;
+  --l-hill-front: #64824a;
+  --l-path: #dbe2ad;
+  --l-tree: #4f6e3a;
+  --l-tree-2: #6e8c50;
+  --l-trunk: #3f5a2f;
 
   color-scheme: light;
 }
 
 .dark {
-  --paper: #1d1a24;
-  --paper-2: #26222e;
-  --surface: #2a2633;
-  --blush: #3a2f3d;
-  --ink: #f2edf5;
-  --ink-soft: #ddd6e3;
-  --muted: #b1a9bc;
-  --subtle: #958d9f;
-  --lavender: #b5a9cf;
-  --lavender-deep: #d0c6e8;
-  --leaf: #9cc53f;
-  --leaf-hover: #b0d45f;
-  --on-leaf: #1c240f;
-  --lime: #9cc53f;
-  --moss: #b0d46b;
+  --paper: #1c2119;
+  --paper-2: #2b3225;
+  --surface: #242b1f;
+  --blush: #2f3a27;
+  --ink: #eeebd2;
+  --ink-soft: #d8d8bd;
+  --muted: #b0b699;
+  --subtle: #959d80;
+  --lavender: #b4c88c;
+  --lavender-deep: #d2deae;
+  --leaf: #c3d58f;
+  --leaf-hover: #d2e1a4;
+  --on-leaf: #1c2119;
+  --lime: #8ea566;
+  --moss: #bfd48a;
 
-  --l-sky: #3d3149;
-  --l-sun: #f1d5c4;
-  --l-ridge-far: #5b4d6e;
-  --l-ridge-mid: #4b3f5d;
-  --l-ridge-near: #3b314b;
-  --l-hill-far: #3a5420;
-  --l-hill-mid: #4b6b27;
-  --l-hill-near: #5d822e;
-  --l-tree: #233715;
-  --l-tree-2: #2d461a;
-  --l-band: #6e5f86;
+  --l-sky: #2c3726;
+  --l-sun: #e7e4ad;
+  --l-cloud: #37442f;
+  --l-hill-far: #3f5236;
+  --l-hill-mid: #36492e;
+  --l-hill-near: #2d3f27;
+  --l-hill-front: #243420;
+  --l-path: #46553a;
+  --l-tree: #1c2a17;
+  --l-tree-2: #2a3b22;
+  --l-trunk: #17220f;
 
   /* Brighten the darker colour shades used for text on dark surfaces */
-  --color-emerald-700: #b0d06b;
-  --color-emerald-800: #cbe19b;
+  --color-emerald-700: #adc27b;
+  --color-emerald-800: #c9d7a0;
   --color-red-700: #f6a3a3;
   --color-rose-700: #f7a5b8;
   --color-amber-700: #f2c66d;
@@ -90,8 +91,8 @@
 }
 
 @theme inline {
-  --font-sans: 'Jost', ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Jost', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Inter Tight', 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
   --color-paper: var(--paper);
@@ -111,26 +112,26 @@
   --color-moss: var(--moss);
 }
 
-/* Grass-green scale replaces Tailwind's mint emerald so existing
-   success/recyclable accents sit inside the palette. `eco` is an alias. */
+/* Olive-sage scale replaces Tailwind's emerald so existing
+   success/recyclable accents stay inside the palette. `eco` is an alias. */
 @theme {
-  --color-emerald-50: #f3f8e8;
-  --color-emerald-100: #e4efc9;
-  --color-emerald-200: #cbe19b;
-  --color-emerald-300: #b0d06b;
-  --color-emerald-400: #9cc53f;
-  --color-emerald-500: #7eaa2b;
-  --color-emerald-600: #5f8c1e;
-  --color-emerald-700: #4a7016;
-  --color-emerald-800: #3a5713;
-  --color-emerald-900: #2e4512;
-  --color-emerald-950: #1a2809;
+  --color-emerald-50: #f1f4e4;
+  --color-emerald-100: #e1e9c6;
+  --color-emerald-200: #c9d7a0;
+  --color-emerald-300: #adc27b;
+  --color-emerald-400: #93ad5e;
+  --color-emerald-500: #789547;
+  --color-emerald-600: #5f7b38;
+  --color-emerald-700: #4a632c;
+  --color-emerald-800: #3a4f23;
+  --color-emerald-900: #2e3f1c;
+  --color-emerald-950: #1b2611;
 
-  --color-eco-50: #f3f8e8;
-  --color-eco-300: #b0d06b;
-  --color-eco-500: #7eaa2b;
-  --color-eco-600: #5f8c1e;
-  --color-eco-950: #1a2809;
+  --color-eco-50: #f1f4e4;
+  --color-eco-300: #adc27b;
+  --color-eco-500: #789547;
+  --color-eco-600: #5f7b38;
+  --color-eco-950: #1b2611;
 }
 
 /* Base */
@@ -148,7 +149,7 @@ body {
 }
 
 ::selection {
-  background: color-mix(in oklab, var(--lime) 45%, transparent);
+  background: color-mix(in oklab, var(--lime) 55%, transparent);
   color: var(--ink);
 }
 
@@ -157,22 +158,30 @@ body {
   letter-spacing: -0.02em;
 }
 
-/* Small uppercase eyebrow label, like "WE ARE" in the hero */
+/* Small section label in plain sentence case */
 .kicker {
-  font-size: 0.8125rem;
+  font-size: 0.95rem;
   font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   color: var(--lavender);
+  text-transform: none;
+  letter-spacing: 0;
 }
 
-/* Big geometric uppercase headline */
+/* Bold grotesque headline */
 .display {
   font-family: var(--font-display);
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.01em;
-  line-height: 1.02;
+  text-transform: none;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+}
+
+/* Thin, wide accent line ("the right way") */
+.accent-thin {
+  font-family: 'Lexend Exa', var(--font-sans);
+  font-weight: 200;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
 }
 
 /* Scrollbars */
@@ -184,16 +193,15 @@ body {
   background: var(--paper);
 }
 ::-webkit-scrollbar-thumb {
-  background: color-mix(in oklab, var(--ink) 18%, transparent);
+  background: color-mix(in oklab, var(--ink) 22%, transparent);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in oklab, var(--ink) 30%, transparent);
+  background: color-mix(in oklab, var(--ink) 35%, transparent);
 }
 
 /* =========================================================
-   Surfaces & controls (class names kept from the previous
-   design so every page picks up the new look)
+   Surfaces & controls (class names kept from earlier designs)
 ========================================================= */
 
 .cred-card,
@@ -201,27 +209,16 @@ body {
 .cred-card-interactive,
 .glass-card-interactive {
   background: var(--surface);
-  border: 1px solid color-mix(in oklab, var(--ink) 9%, transparent);
+  border: 1px solid color-mix(in oklab, var(--ink) 8%, transparent);
   border-radius: 1.75rem;
   position: relative;
   overflow: hidden;
-  box-shadow:
-    0 1px 2px rgba(54, 50, 63, 0.04),
-    0 18px 40px -28px rgba(54, 50, 63, 0.28);
-  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-}
-
-.dark .cred-card,
-.dark .glass-card,
-.dark .cred-card-interactive,
-.dark .glass-card-interactive {
-  box-shadow: 0 18px 40px -28px rgba(0, 0, 0, 0.6);
+  transition: border-color 0.2s ease;
 }
 
 .cred-card-interactive:hover,
 .glass-card-interactive:hover {
-  transform: translateY(-2px);
-  border-color: color-mix(in oklab, var(--lavender) 55%, transparent);
+  border-color: color-mix(in oklab, var(--ink) 25%, transparent);
 }
 
 .glass-pill {
@@ -229,18 +226,38 @@ body {
   border: 1px solid color-mix(in oklab, var(--ink) 10%, transparent);
 }
 
+/* Buttons: rounded rectangles in sentence case, like the reference.
+   Unlayered rules win over Tailwind utilities, so older markup with
+   `uppercase`/`tracking-*` on these buttons is normalised here. */
+.cred-button-primary,
+.cred-button-secondary {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  border-radius: 1rem;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
 .cred-button-primary {
   background: var(--leaf);
   color: var(--on-leaf);
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  border-radius: 9999px;
-  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 .cred-button-primary:hover {
   background: var(--leaf-hover);
 }
-.cred-button-primary:active {
+
+.cred-button-secondary {
+  background: transparent;
+  color: var(--ink);
+  border: 1.5px solid color-mix(in oklab, var(--ink) 45%, transparent);
+}
+.cred-button-secondary:hover {
+  background: var(--paper-2);
+}
+
+.cred-button-primary:active,
+.cred-button-secondary:active {
   transform: scale(0.98);
 }
 .cred-button-primary:focus-visible,
@@ -249,30 +266,14 @@ body {
   outline-offset: 2px;
 }
 
-.cred-button-secondary {
-  background: transparent;
-  color: var(--ink);
-  border: 1.5px solid color-mix(in oklab, var(--ink) 18%, transparent);
-  font-weight: 600;
-  border-radius: 9999px;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-.cred-button-secondary:hover {
-  background: var(--paper-2);
-  border-color: color-mix(in oklab, var(--ink) 30%, transparent);
-}
-.cred-button-secondary:active {
-  transform: scale(0.98);
-}
-
-/* Former shimmer gradient is now a single flat accent colour */
+/* Former shimmer gradient is a single flat colour */
 .shimmer-text {
   color: var(--lavender-deep);
 }
 
 .cred-badge-emerald {
-  background: color-mix(in oklab, var(--lime) 18%, var(--surface));
-  border: 1px solid color-mix(in oklab, var(--lime) 45%, transparent);
+  background: var(--paper-2);
+  border: 1px solid transparent;
   color: var(--moss);
 }
 
@@ -302,8 +303,7 @@ input[type='checkbox'] {
 @media (prefers-reduced-motion: reduce) {
   .animate-laser,
   .animate-pulse,
-  .animate-ping,
-  .animate-spin {
+  .animate-ping {
     animation: none !important;
   }
 }
